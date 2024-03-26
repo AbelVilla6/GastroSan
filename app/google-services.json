@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "128146827599",
+    "project_id": "gastrosan-app",
+    "storage_bucket": "gastrosan-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128146827599:android:1594bc715a2b0516abfd3a",
+        "android_client_info": {
+          "package_name": "com.gastrosan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3NVLeDiUjEEuoA3EZ3CNxgVpEC4_J3y8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,28 @@
+<resources>
+    <string name="gastrosan">GastroSan</string>
+    <string name="iniciar_sesion_con_huella"><u>Iniciar sesión con Huella</u></string>
+    <string name="contraseña">Contraseña</string>
+    <string name="correo_electronico">Correo Electrónico</string>
+    <string name="iniciar_sesiOn">INICIAR SESIÓN</string>
+    <string name="aun_no_tienes_cuenta">¿Aún no tienes cuenta?</string>
+    <string name="registrarse"><u>Registrarse</u></string>
+    <string name="passwd_error_message">La contraseña debe tener al menos 7 caracteres</string>
+    <string name="email_error_message">El email introducido no es válido</string>
+    <string name="message_wait">Por favor, espera mientras comprobamos tus credenciales</string>
+    <string name="cree_una_cuenta_nueva">CREE UNA CUENTA NUEVA</string>
+    <string name="nombre_del_establecimiento">Nombre del Establecimiento</string>
+    <string name="crear_cuenta">CREAR CUENTA</string>
+    <string name="ya_tiene_una_cuenta">¿Ya tiene una cuenta?</string>
+    <string name="iniciar_sesi_n"><u>Iniciar Sesión</u></string>
+    <string name="account_created">La cuenta se ha registrado correctamente</string>
+    <string name="username_error">Debes introducir un usuario válido</string>
+    <string name="registration">Registro</string>
+    <string name="success_registration">Registro Exitoso</string>
+    <string name="loggeidIn_message">Inicio de Sesión Exitoso</string>
+    <string name="wrong_credentials">Los credenciales son incorrectos</string>
+
+
+
+
+
+</resources>
