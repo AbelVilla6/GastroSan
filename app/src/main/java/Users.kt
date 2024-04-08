@@ -3,6 +3,7 @@ class Users {
     var email: String? = null
     var password: String? = null
     var uid: String? = null
+
     var userType = 0
 
     constructor()
