@@ -21,6 +21,11 @@
     <string name="loggeidIn_message">Inicio de Sesión Exitoso</string>
     <string name="wrong_credentials">Los credenciales son incorrectos</string>
     <string name="default_web_client_id">128146827599-4am253qsmsu9bo2m9d750nvem0rn2feh.apps.googleusercontent.com</string>
+    <string name="title_activity_menu">Menu</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_camera">CameraActivity</string>
 
 
 </resources>

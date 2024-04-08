@@ -162,4 +162,6 @@
     <color name="DarkBlue">#00008B</color>
     <color name="Navy">#000080</color>
     <color name="Black">#000000</color>
+    <color name="Primary">#302B63</color>
+    <color name="PrimaryVariant">#383895</color>
 </resources>

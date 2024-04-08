@@ -115,7 +115,7 @@ class LoginActivity : AppCompatActivity() {
 
                 database?.reference?.child("Users")?.child(user.uid)?.setValue(map)
 
-                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                val intent = Intent(this@LoginActivity, MenuActivity::class.java)
                 startActivity(intent)
             } else {
                 Toast.makeText(this@LoginActivity, "Algo fue mal", Toast.LENGTH_SHORT).show()
@@ -161,7 +161,7 @@ class LoginActivity : AppCompatActivity() {
                     mLoadingBar!!.dismiss()
                     //this.result=true;
                     Toast.makeText(this@LoginActivity,R.string.loggeidIn_message,Toast.LENGTH_SHORT).show()
-                    val intent: Intent = Intent(this@LoginActivity,MainActivity::class.java)
+                    val intent: Intent = Intent(this@LoginActivity,MenuActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 } else {
