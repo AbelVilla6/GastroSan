@@ -7,18 +7,24 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Vibrator
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.gastrosan.R
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
+import java.security.MessageDigest
 
 
 class RegisterActivity : AppCompatActivity() {
-    val firebaseDatabase = FirebaseDatabase.getInstance()
+
+    lateinit var mDatabase: DatabaseReference
 
     var inputUserName: EditText? = null
     var inputPassword:EditText? = null
@@ -35,6 +41,8 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        mDatabase = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users")
 
         inputUserName = findViewById(R.id.username)
         inputEmail = findViewById(R.id.email)
@@ -87,15 +95,9 @@ class RegisterActivity : AppCompatActivity() {
                         R.string.success_registration,
                         Toast.LENGTH_SHORT
                     ).show()
-                    val uid = task.result.user!!.uid
-                    val user = Users(
-                        uid,
-                        inputUserName!!.text.toString(),
-                        inputEmail!!.text.toString(),
-                        inputPassword!!.text.toString(),
-                        0
-                    )
-                    firebaseDatabase.reference.child("Users").child(uid).setValue(user)
+
+                    writeNewUser()
+
                     val intent: Intent = Intent(this@RegisterActivity,LoginActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
@@ -111,12 +113,38 @@ class RegisterActivity : AppCompatActivity() {
         return true
     }
 
+    fun writeNewUser() {
+        val password = inputPassword!!.text.toString()
+        val hashedPassword = hashPassword(password)
+        val uid = mAuth?.currentUser?.uid ?: ""
+        val user = Users(
+            uid,
+            inputUserName!!.text.toString(),
+            inputEmail!!.text.toString(),
+            hashedPassword,
+            "",
+            ""
+
+        )
+        println(mDatabase)
+        mDatabase.child(uid).setValue(user)
+        println("Nuevo usuario guardado en la base de datos: $user")
+        Log.d("RegisterActivity", "Nuevo usuario guardado en la base de datos: $user")
+
+    }
     private fun showError(input: EditText, s: String) {
         input.error = s
         input.requestFocus()
     }
     fun logIn(view: View?) {
         startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
+    }
+
+    fun hashPassword(password: String): String {
+        val bytes = password.toByteArray()
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hashedBytes = digest.digest(bytes)
+        return hashedBytes.joinToString("") { "%02x".format(it) }
     }
 
 }

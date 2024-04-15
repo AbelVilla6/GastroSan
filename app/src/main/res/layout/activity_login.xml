@@ -92,24 +92,7 @@
         tools:ignore="MissingConstraints" />
 
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_bg_design"
-        android:padding="14dp"
-        android:text="Iniciar Sesión con Google"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.04"
-        app:layout_constraintWidth_percent=".8"
-        tools:ignore="MissingConstraints" />
-
-    <TextView
+    <!--<TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -120,18 +103,35 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button1" />
+        app:layout_constraintTop_toBottomOf="@+id/button1" />-->
 
     <ImageView
         android:id="@+id/imageView1"
-        android:layout_width="53dp"
-        android:layout_height="56dp"
-        android:textAlignment="center"
+        android:layout_width="88dp"
+        android:layout_height="67dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.374"
+        app:layout_constraintStart_toEndOf="@+id/button2"
+        app:layout_constraintTop_toBottomOf="@+id/button1"
         app:srcCompat="@drawable/fingerprint_dialog_fp_icon"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/button2"
+        android:layout_width="123dp"
+        android:layout_height="112dp"
+        android:contentDescription="Inicio de sesión con Google"
+        android:padding="14dp"
+        android:src="@drawable/google_logo"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textView3"
+        app:layout_constraintEnd_toStartOf="@id/imageView1"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button1"
+        app:layout_constraintWidth_percent=".8"
         tools:ignore="MissingConstraints" />
 
     <TextView

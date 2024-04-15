@@ -9,7 +9,6 @@
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="170dp"
-        android:layout_marginTop="0dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/background_gradient"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -17,10 +16,11 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.001">
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="ExtraText">
 
         <TextView
-            android:id="@+id/name_textview"
+            android:id="@+id/big_bar_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -29,12 +29,28 @@
             android:fontFamily="sans-serif-condensed-medium"
             android:text="Nombre Restaurante"
             android:textAlignment="center"
+            android:textIsSelectable="true"
             android:textColor="@color/white"
             android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/edit_profile_button"
+            android:layout_width="37dp"
+            android:layout_height="40dp"
+            android:onClick="editProfile"
+            android:src="@drawable/baseline_edit_24_gray"
+            app:layout_constraintBottom_toTopOf="@+id/big_bar_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.957"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.8"
+            tools:ignore="MissingConstraints" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -45,7 +61,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="116dp"
         android:layout_marginEnd="8dp"
-        android:src="@drawable/profile"
+        android:src="@drawable/boy_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,6 +71,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
@@ -70,32 +87,36 @@
         app:layout_constraintTop_toBottomOf="@+id/user_imageview"
         app:layout_constraintVertical_bias="0.038">
 
-        <TextView
-            android:id="@+id/occupation_textview"
+        <EditText
+            android:id="@+id/bar_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Nombre Restuarante"
+            android:text="Nombre Restaurante"
+            android:textIsSelectable="true"
+            android:enabled="false"
             android:textColor="#FF0000"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/workplace_textview"
+        <EditText
+            android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Dirección"
-            android:textColor="#FF0057"
-            android:textSize="18sp"
+            android:text="C/Ejemplo 47, 1º"
+            android:textIsSelectable="true"
+            android:enabled="false"
+            android:textColor="#D5FF0057"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/occupation_textview" />
+            app:layout_constraintTop_toBottomOf="@+id/bar_name" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -108,7 +129,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workplace_textview">
+            app:layout_constraintTop_toBottomOf="@+id/address">
 
             <ImageView
                 android:id="@+id/email_imageview"
@@ -132,6 +153,7 @@
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
                 android:text="Correo Electrónico"
+                android:textIsSelectable="true"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.031"
@@ -146,6 +168,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -167,14 +190,17 @@
                 app:layout_constraintTop_toBottomOf="@+id/email_imageview"
                 app:tint="#0590FF" />
 
-            <TextView
+            <EditText
                 android:id="@+id/phone_textview"
-                android:layout_width="239dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="184dp"
-                android:text="+34 000 00 00"
+                android:enabled="false"
+                android:inputType="phone"
+                android:text="+34 000 00 00 00 "
+                android:textIsSelectable="true"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.031"
@@ -186,5 +212,37 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintVertical_bias="0.346">
+
+        <!-- Otros campos de perfil -->
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:elevation="4dp"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
+            android:text="Confirmar cambios"
+            android:onClick="updateUserProfile"
+            android:textColor="#FFFFFF"
+            tools:layout_editor_absoluteX="113dp"
+            tools:layout_editor_absoluteY="513dp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

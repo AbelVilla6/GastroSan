@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.findNavController
@@ -15,10 +14,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.gastrosan.R
 import com.gastrosan.databinding.ActivityMenuBinding
 
+
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var toolbar: Toolbar
+    private var userEmail: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,9 @@ class MenuActivity : AppCompatActivity() {
         toolbar = binding.toolbar
         setSupportActionBar(toolbar)
 
-        //val navView: BottomNavigationView = binding.navView
+        // Obtener el correo electrónico del Intent
+        userEmail = intent.getStringExtra("email")
+        println("Email en Menu: $userEmail")
 
         val navController = findNavController(R.id.nav_host_fragment_activity_menu)
         // Passing each menu ID as a set of Ids because each
@@ -44,7 +47,10 @@ class MenuActivity : AppCompatActivity() {
 
         toolbar.setNavigationOnClickListener {
             Toast.makeText(this, "Perfil", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, ProfileActivity::class.java))
+            startActivity(Intent(this, ProfileActivity::class.java).apply {
+                // Pasar el correo electrónico a ProfileActivity
+                putExtra("email", userEmail)
+            })
         }
     }
     override fun onSupportNavigateUp(): Boolean {
@@ -61,7 +67,10 @@ class MenuActivity : AppCompatActivity() {
             R.id.profile -> {
                 // Abre la actividad de perfil aquí
                 Toast.makeText(this, "Perfil", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, ProfileActivity::class.java))
+                startActivity(Intent(this, ProfileActivity::class.java).apply {
+                    // Pasar el correo electrónico a ProfileActivity
+                    putExtra("email", userEmail)
+                })
                 true
             }
             else -> super.onOptionsItemSelected(item)

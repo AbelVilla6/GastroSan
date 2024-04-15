@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -25,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
+import java.security.MessageDigest
 import java.util.concurrent.Executor
 
 
@@ -35,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var inputPassword: EditText
     private lateinit var checkBox: CheckBox
 
-    private lateinit var bGoogle: Button
+    private lateinit var bGoogle: ImageView
 
     var mLoadingBar: ProgressDialog? = null
 
@@ -144,6 +146,7 @@ class LoginActivity : AppCompatActivity() {
         val result = false
         val email: String = inputEmail.text.toString()
         val password: String = inputPassword.text.toString()
+        val hashedPassword = hashPassword(password) // Hashea la contraseña ingresada antes de la comparación
 
         return if (email.isEmpty() || !email.contains("@")) {
             showError(inputEmail, getString(R.string.email_error_message))
@@ -161,9 +164,19 @@ class LoginActivity : AppCompatActivity() {
                     mLoadingBar!!.dismiss()
                     //this.result=true;
                     Toast.makeText(this@LoginActivity,R.string.loggeidIn_message,Toast.LENGTH_SHORT).show()
+
+                    // Obtener el correo electrónico del usuario actual
+                    val user = FirebaseAuth.getInstance().currentUser
+                    val email = user?.email
+                    println("Email en Login: $email")
+
                     val intent: Intent = Intent(this@LoginActivity,MenuActivity::class.java)
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.putExtra("email", email)
                     startActivity(intent)
+
+                    // Finalizar esta actividad para que no se pueda volver atrás desde la actividad de perfil
+                    finish()
                 } else {
                     mLoadingBar!!.dismiss()
                     Toast.makeText(this@LoginActivity,R.string.wrong_credentials,Toast.LENGTH_SHORT).show()
@@ -181,6 +194,13 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         }
     }
+    fun hashPassword(password: String): String {
+        val bytes = password.toByteArray()
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hashedBytes = digest.digest(bytes)
+        return hashedBytes.joinToString("") { "%02x".format(it) }
+    }
+
 
     private fun showError(input: EditText, s: String) {
         input.error = s
