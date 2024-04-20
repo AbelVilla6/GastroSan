@@ -35,6 +35,9 @@ class DashboardFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
+    private lateinit var valueEventListener: ValueEventListener
+
+
     private var email: String? = null
 
     companion object {
@@ -72,10 +75,20 @@ class DashboardFragment : Fragment() {
                 return false
             }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
+            /*override fun onQueryTextChange(newText: String?): Boolean {
                 (listViewProviders.adapter as CustomAdapter).filter.filter(newText)
                 return false
+            }*/
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val adapter = listViewProviders.adapter
+                if (adapter is CustomAdapter) {
+                    adapter.filter.filter(newText)
+                } else {
+                    println("Adapter is not an instance of CustomAdapter or is null")
+                }
+                return false
             }
+
 
         })
         return root
@@ -85,8 +98,11 @@ class DashboardFragment : Fragment() {
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
 
-        usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+        valueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                    return
+                }
                 if (dataSnapshot.exists()) {
                     val providerList = ArrayList<Suppliers>()
 
@@ -115,10 +131,22 @@ class DashboardFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
+                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                    return
+                }
                 println("Error al cargar proveedores: ${error.message}")
             }
-        })
+        }
+        usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(valueEventListener)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Remover el event listener de Firebase
+        val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+        rootRef.getReference("users").removeEventListener(valueEventListener)
+    }
+
 
     private class CustomAdapter(
         context: android.content.Context,

@@ -23,6 +23,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.*
 import android.text.Editable
+import androidx.appcompat.app.AlertDialog
 import com.gastrosan.databinding.ActivityProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.StorageReference
@@ -178,7 +179,37 @@ class ProfileActivity : AppCompatActivity() {
         // Recargar los datos del perfil
         loadUserProfile()
     }
+    fun signOut(view: View) {
+        // Mostrar el diálogo de confirmación
+        showSignOutConfirmationDialog()
+    }
 
+    private fun showSignOutConfirmationDialog() {
+        // Crear el diálogo de confirmación
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmar")
+        builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+        // Botón "Sí": cierra sesión
+        builder.setPositiveButton("Sí") { dialog, which ->
+            // Cerrar sesión
+            FirebaseAuth.getInstance().signOut()
+            // Redirigir a la pantalla de inicio de sesión
+            val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        // Botón "No": cancela
+        builder.setNegativeButton("No") { dialog, which ->
+            // Cerrar el diálogo sin hacer nada
+            dialog.dismiss()
+        }
+
+        // Mostrar el diálogo
+        val dialog = builder.create()
+        dialog.show()
+    }
 
 
 

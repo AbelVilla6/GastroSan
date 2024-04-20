@@ -46,6 +46,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
+
 }
 
 dependencies {
@@ -96,9 +99,16 @@ dependencies {
     //Progress Dialog Library
     implementation("com.jpardogo.googleprogressbar:library:1.2.0")
 
-    //CameraX
+    // CameraX core library
     implementation("androidx.camera:camera-camera2:1.3.2")
     implementation("androidx.camera:camera-lifecycle:1.3.2")
+    implementation("androidx.camera:camera-view:1.3.2")
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+
+
+    /*// Si necesitas análisis de imagen (por ejemplo, para códigos QR o procesamiento en tiempo real)
+    implementation("androidx.camera:camera-video:1.3.2")
+    implementation("androidx.camera:camera-image-analysis:1.0.0-alpha24")*/
 
     //Firebase Storage - obtener imágenes
     implementation("com.github.bumptech.glide:glide:4.14.2")

@@ -45,6 +45,29 @@ class MenuActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
 
+        binding.navView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    navController.popBackStack(R.id.navigation_home, false)
+                    true
+                }
+                R.id.navigation_camera -> {
+                    if (navController.currentDestination?.id != R.id.navigation_camera) {
+                        navController.navigate(R.id.navigation_camera)
+                    }
+                    true
+                }
+                R.id.navigation_dashboard -> {
+                    if (navController.currentDestination?.id != R.id.navigation_dashboard) {
+                        navController.navigate(R.id.navigation_dashboard)
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+
+
         toolbar.setNavigationOnClickListener {
             Toast.makeText(this, "Perfil", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, ProfileActivity::class.java).apply {
@@ -76,5 +99,14 @@ class MenuActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    override fun onBackPressed() {
+        val navController = findNavController(R.id.nav_host_fragment_activity_menu)
+        if (navController.currentDestination?.id == R.id.navigation_home) {
+            super.onBackPressed()
+        } else {
+            navController.popBackStack(R.id.navigation_home, false)
+        }
+    }
+
 
 }
