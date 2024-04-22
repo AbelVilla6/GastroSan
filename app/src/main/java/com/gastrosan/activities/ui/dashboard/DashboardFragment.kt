@@ -64,7 +64,8 @@ class DashboardFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
 
         //receive email from menu
-        email = requireActivity().intent.getStringExtra("email")
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        email = currentUser?.email
         println("Email en Dashboard: $email")
 
         loadSuppliers()

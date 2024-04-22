@@ -13,6 +13,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.gastrosan.R
 import com.gastrosan.databinding.ActivityMenuBinding
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MenuActivity : AppCompatActivity() {
@@ -31,7 +32,10 @@ class MenuActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         // Obtener el correo electrónico del Intent
-        userEmail = intent.getStringExtra("email")
+        //userEmail = intent.getStringExtra("email")
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        userEmail = currentUser?.email
+        println("User en Menu: $currentUser")
         println("Email en Menu: $userEmail")
 
         val navController = findNavController(R.id.nav_host_fragment_activity_menu)
