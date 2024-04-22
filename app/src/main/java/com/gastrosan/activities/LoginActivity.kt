@@ -36,22 +36,13 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var inputEmail: EditText
     private lateinit var inputPassword: EditText
     private lateinit var checkBox: CheckBox
-
     private lateinit var bGoogle: ImageView
-
     var mLoadingBar: ProgressDialog? = null
 
-    private val executor: Executor? = null
-    private val biometricPrompt: BiometricPrompt? = null
-    //private val promptInfo: BiometricPrompt.PromptInfo? = null
     var mAuth: FirebaseAuth? = null
     var database: FirebaseDatabase? = null
-
     lateinit var mGoogleSignInClient: GoogleSignInClient
-
     val RC_SIGN_IN = 20
-
-
 
     @SuppressLint("MissingInflatedId", "WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,72 +50,101 @@ class LoginActivity : AppCompatActivity() {
         installSplashScreen()
         setContentView(R.layout.activity_login)
 
+        mAuth = FirebaseAuth.getInstance()
+        // Chequear si el usuario está ya logueado
+        if (mAuth!!.currentUser != null) {
+            // El usuario está logueado, redirigir al MenuActivity
+            goToMenuActivity()
+        } else {
+            // El usuario no está logueado, inicializar componentes para login
+            initializeLoginComponents()
+        }
+
+    }
+    private fun initializeLoginComponents() {
         bLogIn = findViewById(R.id.button1)
         vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
-
-        checkBox = findViewById(R.id.checkBox)
-
-        checkBox.setOnClickListener(View.OnClickListener {
-           if(checkBox.isChecked){
-               inputPassword.inputType = 1
-        }else{
-               inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        }
-        })
-
-        bGoogle = findViewById(R.id.button2)
-
-
-        bLogIn.setOnClickListener(View.OnClickListener {
-            vibrator.vibrate(100)
-            if (checkCredentials()) {
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-            }
-        })
         inputEmail = findViewById(R.id.editText1)
-        inputPassword = findViewById<EditText>(R.id.editText2)
-        mAuth = FirebaseAuth.getInstance()
-        mLoadingBar = ProgressDialog(this@LoginActivity)
-        database = FirebaseDatabase.getInstance()
+        inputPassword = findViewById(R.id.editText2)
+        checkBox = findViewById(R.id.checkBox)
+        bGoogle = findViewById(R.id.button2)
+        mLoadingBar = ProgressDialog(this)
 
+        // Inicializar el ProgressDialog con la configuración adecuada
+        mLoadingBar = ProgressDialog(this).apply {
+            setTitle("Inicio de sesión")
+            setMessage("Por favor, espere mientras verificamos sus credenciales...")
+            setCanceledOnTouchOutside(false)
+        }
+        setupSignInMethods()
+
+    }
+    private fun setupSignInMethods() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
-//            .requestProfile()
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        bLogIn.setOnClickListener {
+            performLogin()
+        }
+
         bGoogle.setOnClickListener {
-            googleSingIn()
+            googleSignIn()
+        }
+
+        checkBox.setOnClickListener {
+            if (checkBox.isChecked) {
+                inputPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
         }
     }
+    private fun performLogin() {
+        val email = inputEmail.text.toString()
+        val password = inputPassword.text.toString()
 
-    private fun googleSingIn() {
-        val intent = mGoogleSignInClient.signInIntent
-        startActivityForResult(intent, RC_SIGN_IN)
+        if (email.isEmpty() || !email.contains("@")) {
+            showError(inputEmail, "Por favor, introduzca un correo electrónico válido.")
+            return
+        } else if (password.isEmpty() || password.length < 6) {
+            showError(inputPassword, "La contraseña debe tener al menos 6 caracteres.")
+            return
+        }
+
+        mLoadingBar?.show()
+
+        mAuth?.signInWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
+            mLoadingBar?.dismiss()
+            if (task.isSuccessful) {
+                goToMenuActivity()
+            } else {
+                Toast.makeText(this, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    private fun googleSignIn() {
+        val signInIntent = mGoogleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
-                val user = mAuth?.currentUser
-                val map = HashMap<String, Any>()
-                map["id"] = user!!.uid
-                map["name"] = user.displayName ?: ""
-                //map.put("profile",user.photoUrl.toString())
-
-                database?.reference?.child("Users")?.child(user.uid)?.setValue(map)
-
-                val intent = Intent(this@LoginActivity, MenuActivity::class.java)
-                startActivity(intent)
+                goToMenuActivity()
             } else {
-                Toast.makeText(this@LoginActivity, "Algo fue mal", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Ha ocurrido un error en nuestros servidores", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
+    private fun goToMenuActivity() {
+        startActivity(Intent(this, MenuActivity::class.java))
+        finish()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
