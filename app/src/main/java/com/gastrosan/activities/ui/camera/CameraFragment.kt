@@ -72,6 +72,7 @@ class CameraFragment : Fragment() {
     private lateinit var rotateButton: Button
     private lateinit var saveButton: Button
     private lateinit var nextButton: Button
+    private lateinit var addButton: Button
     private lateinit var selectTextView: TextView
 
     private lateinit var outputDirectory: File
@@ -119,6 +120,7 @@ class CameraFragment : Fragment() {
 
         rotateButton = root.findViewById(R.id.btnRotate)
         saveButton = root.findViewById(R.id.btnGuardar)
+        addButton = root.findViewById(R.id.btnAddSupplier)
         nextButton = root.findViewById(R.id.btnSiguiente)
         selectTextView = root.findViewById(R.id.textSelectProvider)
         listViewProviders = root.findViewById(R.id.listViewProviders)
@@ -355,8 +357,6 @@ class CameraFragment : Fragment() {
         // Aplicar la rotación almacenada al ImageView
         binding.imageView.rotation = currentRotation
 
-
-
         // Set the layout dynamically based on rotation
         when (currentRotation % 360) {
             0f -> {
@@ -427,9 +427,6 @@ class CameraFragment : Fragment() {
                 binding.imageView.requestLayout()
                 binding.viewFinder.requestLayout()
             }
-
-
-
             270f -> {
                 val newWidth = convertDpToPixel(200f, requireContext())
                 val newHeight = convertDpToPixel(200f, requireContext())
@@ -466,16 +463,21 @@ class CameraFragment : Fragment() {
                 binding.viewFinder.requestLayout()
             }
         }
-
-
-
             // Actualiza visibilidades y funciones
         updateUIForScreenThree()
 
         // Configurar la acción del botón "Guardar"
         binding.btnGuardar.setOnClickListener {
-            Toast.makeText(context, "Guardando foto...", Toast.LENGTH_SHORT).show()
-            // Lógica para guardar la foto con el proveedor seleccionado
+            val adapter = listViewProviders.adapter as CustomAdapter
+            if (adapter.selectedPosition == -1) {
+                // No hay ningún proveedor seleccionado
+                Toast.makeText(context, "Debes seleccionar un proveedor o añadir uno nuevo", Toast.LENGTH_LONG).show()
+            } else {
+                // Hay un proveedor seleccionado
+                val selectedSupplier = adapter.getItem(adapter.selectedPosition)
+                Toast.makeText(context, "Guardando foto con el proveedor: ${selectedSupplier?.name}", Toast.LENGTH_LONG).show()
+                // Aquí iría la lógica para guardar la foto con el proveedor seleccionado
+            }
         }
 
     }
@@ -493,6 +495,7 @@ class CameraFragment : Fragment() {
         binding.textSelectProvider.visibility = View.VISIBLE
         binding.listViewProviders.visibility = View.VISIBLE
         binding.btnGuardar.visibility = View.VISIBLE
+        binding.btnAddSupplier.visibility = View.VISIBLE
 
         if (listViewProviders.adapter == null) {
             loadSuppliers()

@@ -102,11 +102,25 @@
         android:layout_height="wrap_content"
         android:text="GUARDAR"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="8dp"
         android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@+id/btnAddSupplier"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/listViewProviders"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <Button
+        android:id="@+id/btnAddSupplier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AÑADIR PROVEEDOR"
+        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/btnGuardar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/listViewProviders"
         app:layout_constraintVertical_bias="0.1" />
+
     <Button
         android:id="@+id/btnRotate"
         android:layout_width="wrap_content"
