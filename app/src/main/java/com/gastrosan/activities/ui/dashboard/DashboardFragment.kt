@@ -149,7 +149,7 @@ class DashboardFragment : Fragment() {
     }
 
 
-    private class CustomAdapter(
+    class CustomAdapter(
         context: android.content.Context,
         resource: Int,
         objects: ArrayList<Suppliers>

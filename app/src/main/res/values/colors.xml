@@ -165,4 +165,7 @@
     <color name="Primary">#302B63</color>
     <color name="PrimaryVariant">#383895</color>
     <color name="Gradiente" tools:ignore="ReferenceType">@drawable/background_gradient</color>
+    <color name="design_default_color_primary">#FF6200EE</color>
+    <color name="non_selected_item">#FFFFFF</color>
+
 </resources>
