@@ -61,6 +61,7 @@
         app:layout_constraintVertical_bias="0.0">
 
         <ImageView
+            android:id="@+id/addSupplier"
             android:layout_width="48dp"
             android:layout_height="47dp"
             android:src="@drawable/baseline_add"

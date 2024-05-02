@@ -42,11 +42,15 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import Suppliers
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updateLayoutParams
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.gastrosan.activities.ui.dashboard.DashboardFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -55,7 +59,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
-
+import com.airbnb.lottie.LottieAnimationView
+import com.gastrosan.activities.AddSupplierActivity
 
 
 class CameraFragment : Fragment() {
@@ -74,6 +79,7 @@ class CameraFragment : Fragment() {
     private lateinit var nextButton: Button
     private lateinit var addButton: Button
     private lateinit var selectTextView: TextView
+    private lateinit var btnAddSupplier: Button
 
     private lateinit var outputDirectory: File
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -89,6 +95,8 @@ class CameraFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
     private var email: String? = null
+
+
 
 
 
@@ -122,6 +130,7 @@ class CameraFragment : Fragment() {
         saveButton = root.findViewById(R.id.btnGuardar)
         addButton = root.findViewById(R.id.btnAddSupplier)
         nextButton = root.findViewById(R.id.btnSiguiente)
+        btnAddSupplier = root.findViewById(R.id.btnAddSupplier)
         selectTextView = root.findViewById(R.id.textSelectProvider)
         listViewProviders = root.findViewById(R.id.listViewProviders)
 
@@ -135,6 +144,11 @@ class CameraFragment : Fragment() {
         setupListView()
 
         startCamera()
+
+        btnAddSupplier.setOnClickListener{
+            val intent = Intent(requireContext(), AddSupplierActivity::class.java)
+            startActivity(intent)
+        }
         return root
     }
     private fun showSettingsDialog() {
@@ -162,7 +176,7 @@ class CameraFragment : Fragment() {
                 adapter.notifyDataSetChanged()
                 Toast.makeText(context, "Proveedor seleccionado: ${adapter.getItem(position)?.name}", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Datos aún cargando o índice fuera de rango", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Por favor, marca el checkbox correspondiente", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -475,8 +489,16 @@ class CameraFragment : Fragment() {
             } else {
                 // Hay un proveedor seleccionado
                 val selectedSupplier = adapter.getItem(adapter.selectedPosition)
-                Toast.makeText(context, "Guardando foto con el proveedor: ${selectedSupplier?.name}", Toast.LENGTH_LONG).show()
-                // Aquí iría la lógica para guardar la foto con el proveedor seleccionado
+
+                // Usar el Uri adecuado según el origen de la imagen
+                val photoUri = if (this::currentPhotoPath.isInitialized) {
+                    Uri.fromFile(File(currentPhotoPath)) // Foto de la cámara
+                } else {
+                    // Aquí manejas el caso de la galería, asegúrate de tener un Uri válido
+                    binding.imageView.tag as? Uri ?: return@setOnClickListener // Usar un tag para guardar el Uri de la imagen seleccionada
+                }
+                uploadImageToFirebaseStorage(photoUri, selectedSupplier?.id ?: "")
+
             }
         }
 
@@ -489,6 +511,7 @@ class CameraFragment : Fragment() {
             context.resources.displayMetrics
         ).toInt()
     }
+
     private fun updateUIForScreenThree() {
         binding.btnSiguiente.visibility = View.GONE
         binding.btnRotate.visibility = View.GONE
@@ -501,6 +524,104 @@ class CameraFragment : Fragment() {
             loadSuppliers()
         }
     }
+    fun uploadImageToFirebaseStorage(imageUri: Uri, supplierId: String) {
+        showLoadingScreen(true)  // Mostrar la pantalla de carga
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid ?: return  // Asegúrate de que el usuario está autenticado antes de continuar
+
+        // Generar un nombre de archivo único usando timestamp o número random
+        val timestamp = System.currentTimeMillis()
+
+        // Extraer solo el nombre del archivo del Uri, ignorando cualquier otro path
+        val fileName = imageUri.lastPathSegment?.substringAfterLast('/') ?: "default_${System.currentTimeMillis()}.jpg"
+
+        val storageRef = FirebaseStorage.getInstance().reference.child("invoices/$userId/$supplierId/$fileName")
+        val uploadTask = storageRef.putFile(imageUri)
+
+        uploadTask.addOnSuccessListener {
+            storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                showLoadingScreen(false, true)  // Éxito, muestra el tic verde
+                saveImageUrlToDatabase(downloadUri.toString(), supplierId, "invoice_$timestamp")
+            }
+        }.addOnFailureListener { exception ->
+            showLoadingScreen(false, false)  // Error, muestra la cruz roja
+            Toast.makeText(context, "Error al subir imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    fun showLoadingScreen(show: Boolean, success: Boolean? = null) {
+        binding?.let { bind ->
+            if (show) {
+                binding.listViewProviders.visibility = View.GONE
+                binding.textSelectProvider.visibility = View.GONE
+                binding.btnGuardar.visibility = View.GONE
+                binding.btnAddSupplier.visibility = View.GONE
+                binding.lottieAnimationView.visibility = View.VISIBLE
+
+                binding.statusMessage.text = "Guardando imagen..."
+                binding.statusMessage.visibility = View.VISIBLE
+                binding.lottieAnimationView.setAnimation(R.raw.loading_animation)  // Asume que tienes una animación de carga
+
+                binding.lottieAnimationView.playAnimation()
+            } else {
+                binding.lottieAnimationView.postDelayed({
+                    binding.lottieAnimationView.pauseAnimation()
+                    binding.lottieAnimationView.visibility = View.GONE
+                    binding.statusMessage.visibility = View.GONE
+
+                }, 5000)  // Detiene la animación después de 8 segundos
+
+                if (success == true) {
+                    binding.lottieAnimationView.setAnimation(R.raw.success_animation)
+                    binding.statusMessage.text = "La imagen se ha guardado correctamente."
+                } else {
+                    binding.lottieAnimationView.setAnimation(R.raw.error_animation)
+                    binding.statusMessage.text = "La imagen no ha podido guardarse, por favor intentalo de nuevo."
+                }
+                binding.lottieAnimationView.playAnimation()
+                binding.statusMessage.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    fun saveImageUrlToDatabase(imageUrl: String, supplierId: String, invoiceId: String) {
+        val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users")
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid ?: return
+        val timestamp = System.currentTimeMillis()
+        val invoiceData = mapOf(
+            "url" to imageUrl,
+            "timestamp" to timestamp,
+            "date" to SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date(timestamp)),
+            "time" to SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
+        )
+        println("El usuario: $userId, va a almacenar la información de la factura: $invoiceData, para el proveedor: $supplierId")
+        databaseRef.child(userId).child("suppliers").child(supplierId).child("invoices").child(invoiceId).setValue(invoiceData)
+            .addOnSuccessListener {
+                println("Imagen guardada con éxito")
+                navigateHome()
+            }
+            .addOnFailureListener {
+                println("Error al guardar la información de la factura: ${it.message}")
+            }
+    }
+    private fun navigateHome() {
+        // Handler con un delay de 8 segundos
+        Handler(Looper.getMainLooper()).postDelayed({
+            // Verifica si el fragmento está correctamente añadido a la actividad y la actividad no está finalizando
+            val activity = activity
+            if (isAdded && activity != null && !activity.isFinishing) {
+                try {
+                    // Navegar al HomeFragment si es seguro
+                    findNavController().navigate(R.id.navigation_home)
+                } catch (e: Exception) {
+                    Log.e("CameraFragment", "Error al navegar: ${e.message}")
+                }
+            } else {
+                Log.e("CameraFragment", "El Fragmento no está adjunto o la actividad está finalizando.")
+            }
+        }, 5000)  // Retraso de 5 segundos
+    }
 
     private fun initializeOutputDirectory() {
         outputDirectory = requireContext().getExternalFilesDir(null) ?: requireContext().filesDir
@@ -508,9 +629,14 @@ class CameraFragment : Fragment() {
     private val pickFromGallery = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             val imageUri = result.data?.data
+            imageUri?.let {
+                binding.imageView.visibility = View.VISIBLE  // Mostrar la ImageView
+                binding.imageView.setImageURI(it)  // Cargar la imagen seleccionada
+                binding.imageView.tag = it  // Almacenar el Uri en el tag para uso posterior
+            }
             binding.viewFinder.visibility = View.GONE  // Ocultar el PreviewView
-            binding.imageView.visibility = View.VISIBLE  // Mostrar la ImageView
-            binding.imageView.setImageURI(imageUri)  // Cargar la imagen seleccionada
+            //binding.imageView.visibility = View.VISIBLE  // Mostrar la ImageView
+            //binding.imageView.setImageURI(imageUri)  // Cargar la imagen seleccionada
 
             // Ocultar botones de cámara y galería, mostrar botón de guardar
             binding.btnCamara.visibility = View.GONE

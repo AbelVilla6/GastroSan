@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import android.widget.ListView
 import Suppliers
+import android.content.Intent
 import android.widget.ArrayAdapter
 import android.util.Log
 import com.google.firebase.storage.FirebaseStorage
@@ -25,13 +26,14 @@ import java.util.ArrayList
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import java.io.File
 import com.bumptech.glide.load.engine.cache.DiskCache
-
+import com.gastrosan.activities.AddSupplierActivity
 
 
 class DashboardFragment : Fragment() {
 
     private lateinit var listViewProviders: ListView
     private lateinit var searchView: SearchView
+    private lateinit var addSupplier: ImageView
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
@@ -60,6 +62,7 @@ class DashboardFragment : Fragment() {
 
         listViewProviders = root.findViewById(R.id.listViewProviders)
         searchView = root.findViewById(R.id.searchView)
+        addSupplier = root.findViewById(R.id.addSupplier)
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
@@ -70,6 +73,10 @@ class DashboardFragment : Fragment() {
 
         loadSuppliers()
 
+        addSupplier.setOnClickListener {
+            val intent = Intent(activity, AddSupplierActivity::class.java)
+            startActivity(intent)
+        }
         //searchview
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
