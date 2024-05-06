@@ -21,6 +21,9 @@
         android:theme="@style/Theme.GastroSan"
         tools:targetApi="31">
         <activity
+            android:name=".activities.SupplierActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AddSupplierActivity"
             android:exported="false" />
 

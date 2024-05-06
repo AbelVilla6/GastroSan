@@ -15,18 +15,26 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import android.widget.ListView
 import Suppliers
+import android.content.Context
 import android.content.Intent
 import android.widget.ArrayAdapter
 import android.util.Log
+import android.widget.Button
+import android.widget.CheckBox
 import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
 import android.widget.Filterable
 import android.widget.Filter
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import java.util.ArrayList
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import java.io.File
 import com.bumptech.glide.load.engine.cache.DiskCache
 import com.gastrosan.activities.AddSupplierActivity
+import com.gastrosan.activities.SupplierActivity
+import java.util.Locale
 
 
 class DashboardFragment : Fragment() {
@@ -34,11 +42,16 @@ class DashboardFragment : Fragment() {
     private lateinit var listViewProviders: ListView
     private lateinit var searchView: SearchView
     private lateinit var addSupplier: ImageView
+    private lateinit var deleteSupplier: ImageView
+    private lateinit var buttonCancel: Button
+    private lateinit var buttonDelete: Button
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
     private lateinit var valueEventListener: ValueEventListener
 
+    // Variable de instancia para la lista de proveedores
+    private var providerList: ArrayList<Suppliers> = arrayListOf()
 
     private var email: String? = null
 
@@ -63,6 +76,9 @@ class DashboardFragment : Fragment() {
         listViewProviders = root.findViewById(R.id.listViewProviders)
         searchView = root.findViewById(R.id.searchView)
         addSupplier = root.findViewById(R.id.addSupplier)
+        deleteSupplier = root.findViewById(R.id.deleteSupplier)
+        buttonCancel = root.findViewById(R.id.buttonCancel)
+        buttonDelete = root.findViewById(R.id.buttonDelete)
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
@@ -77,30 +93,77 @@ class DashboardFragment : Fragment() {
             val intent = Intent(activity, AddSupplierActivity::class.java)
             startActivity(intent)
         }
+        deleteSupplier.setOnClickListener {
+            if (providerList.isNotEmpty()) {
+                addSupplier.visibility = View.GONE
+                deleteSupplier.visibility = View.GONE
+                buttonDelete.visibility = View.VISIBLE
+                buttonCancel.visibility = View.VISIBLE
+                switchAdapter(true)
+            } else {
+                Toast.makeText(context, "Los datos aún no están cargados, por favor espere.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        buttonDelete.setOnClickListener {
+            val adapter = listViewProviders.adapter as? CustomSelectableAdapter
+            if (adapter?.getSelectedSuppliers()?.isEmpty() == true) {
+                Toast.makeText(context, "Seleccione al menos un proveedor para eliminar.", Toast.LENGTH_SHORT).show()
+            } else {
+                context?.let { it1 ->
+                    AlertDialog.Builder(it1)
+                        .setTitle("Confirmar eliminación")
+                        .setMessage("¿Estás seguro de que quieres eliminar los proveedores seleccionados?")
+                        .setPositiveButton("Eliminar") { dialog, _ ->
+                            adapter?.getSelectedSuppliers()?.forEach { supplierId ->
+                                deleteSupplierFromFirebase(supplierId)
+                            }
+                            dialog.dismiss()
+                            switchAdapter(false) // Switch back to normal adapter
+                            addSupplier.visibility = View.VISIBLE
+                            deleteSupplier.visibility = View.VISIBLE
+                            buttonDelete.visibility = View.GONE
+                            buttonCancel.visibility = View.GONE
+                        }
+                        .setNegativeButton("Cancelar", null)
+                        .show()
+                }
+            }
+        }
+        buttonCancel.setOnClickListener {
+            addSupplier.visibility = View.VISIBLE
+            deleteSupplier.visibility = View.VISIBLE
+            buttonDelete.visibility = View.GONE
+            buttonCancel.visibility = View.GONE
+            switchAdapter(false) // Cambia de vuelta al adaptador original
+        }
         //searchview
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
-            /*override fun onQueryTextChange(newText: String?): Boolean {
-                (listViewProviders.adapter as CustomAdapter).filter.filter(newText)
-                return false
-            }*/
             override fun onQueryTextChange(newText: String?): Boolean {
                 val adapter = listViewProviders.adapter
-                if (adapter is CustomAdapter) {
-                    adapter.filter.filter(newText)
+                if (adapter is Filterable) {  // Asegúrate de que el adaptador implemente Filterable
+                    (adapter as Filterable).filter.filter(newText)
                 } else {
-                    println("Adapter is not an instance of CustomAdapter or is null")
+                    println("Adapter is not an instance of Filterable or is null")
                 }
                 return false
             }
-
-
         })
+
+        listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
+        listViewProviders.setOnItemClickListener { parent, view, position, id ->
+            val supplier = parent.adapter.getItem(position) as Suppliers
+            val intent = Intent(context, SupplierActivity::class.java)
+            intent.putExtra("supplierId", supplier.id) // Suponiendo que Suppliers tiene un campo id
+            startActivity(intent)
+        }
+
         return root
     }
+
 
     private fun loadSuppliers() {
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
@@ -112,7 +175,8 @@ class DashboardFragment : Fragment() {
                     return
                 }
                 if (dataSnapshot.exists()) {
-                    val providerList = ArrayList<Suppliers>()
+                    providerList.clear() // Limpiar lista anterior
+                    //val providerList = ArrayList<Suppliers>()
 
                     for (userSnapshot in dataSnapshot.children) {
                         val suppliersSnapshot = userSnapshot.child("suppliers")
@@ -130,9 +194,11 @@ class DashboardFragment : Fragment() {
                         }
                     }
 
-                    // Crear el adaptador personalizado
+                    /*// Crear el adaptador personalizado
                     val adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
-                    listViewProviders.adapter = adapter
+                    listViewProviders.adapter = adapter*/
+                    listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
+
                 } else {
                     println("No existe usuario con este correo electrónico.")
                 }
@@ -153,6 +219,125 @@ class DashboardFragment : Fragment() {
         // Remover el event listener de Firebase
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         rootRef.getReference("users").removeEventListener(valueEventListener)
+    }
+
+    fun switchAdapter(isSelectionMode: Boolean) {
+        if (isSelectionMode) {
+            val selectableAdapter = CustomSelectableAdapter(requireContext(), providerList)
+            listViewProviders.adapter = selectableAdapter
+        } else {
+            val normalAdapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
+            listViewProviders.adapter = normalAdapter
+        }
+    }
+    class CustomSelectableAdapter(
+        context: Context,
+        objects: ArrayList<Suppliers>
+    ) : ArrayAdapter<Suppliers>(context, 0, objects), Filterable {
+
+        private var suppliersList: ArrayList<Suppliers> = objects
+        private var filteredSuppliersList: ArrayList<Suppliers> = ArrayList(objects)
+        private val selectedSuppliers = HashSet<String>()
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.list_item_provider3, parent, false)
+            val supplier = getItem(position) ?: return view
+
+            val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
+            val providerName = view.findViewById<TextView>(R.id.providerName)
+            val providerLogo = view.findViewById<ImageView>(R.id.providerLogo)
+
+            providerName.text = supplier.name
+            checkBox.isChecked = selectedSuppliers.contains(supplier.id)
+
+            checkBox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    supplier.id?.let { selectedSuppliers.add(it) }
+                } else {
+                    supplier.id?.let { selectedSuppliers.remove(it) }
+                }
+            }
+
+            if (supplier.logoUrl.isNullOrEmpty()) {
+                providerLogo.setImageResource(R.drawable.default_logo)
+            } else {
+                // Si la URL del logo empieza con "gs://", entonces es una referencia de Firebase Storage
+                if (supplier.logoUrl!!.startsWith("gs://")) {
+                    val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(
+                        supplier.logoUrl!!
+                    )
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Glide.with(context)
+                            .load(uri)
+                            .placeholder(R.drawable.default_logo)
+                            .error(R.drawable.default_logo)
+                            .into(providerLogo)
+                    }.addOnFailureListener {
+                        providerLogo.setImageResource(R.drawable.default_logo) // Imagen de fallo
+                    }
+                } else {
+                    // Carga directa si no es una referencia de Firebase
+                    Glide.with(context)
+                        .load(supplier.logoUrl)
+                        .placeholder(R.drawable.default_logo)
+                        .error(R.drawable.default_logo)
+                        .into(providerLogo)
+                }
+            }
+
+            return view
+        }
+
+
+        override fun getCount(): Int = filteredSuppliersList.size
+
+        override fun getItem(position: Int): Suppliers? = filteredSuppliersList[position]
+
+        override fun getFilter(): Filter {
+            return object : Filter() {
+                override fun performFiltering(constraint: CharSequence?): FilterResults {
+                    val charString = constraint.toString().ifEmpty { "" }
+                    filteredSuppliersList = if (charString.isEmpty()) {
+                        suppliersList
+                    } else {
+                        val filteredList = ArrayList<Suppliers>()
+                        for (row in suppliersList) {
+                            if (row.name?.toLowerCase(Locale.ROOT)?.contains(charString.toLowerCase(Locale.ROOT))!!) {
+                                filteredList.add(row)
+                            }
+                        }
+                        filteredList
+                    }
+                    val filterResults = FilterResults()
+                    filterResults.values = filteredSuppliersList
+                    return filterResults
+                }
+
+                override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                    filteredSuppliersList = results?.values as ArrayList<Suppliers>
+                    notifyDataSetChanged()
+                }
+            }
+        }
+
+        fun getSelectedSuppliers(): HashSet<String> {
+            return selectedSuppliers
+        }
+    }
+
+
+
+    private fun deleteSupplierFromFirebase(supplierId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userId/suppliers/$supplierId")
+        databaseRef.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(context, "Proveedor eliminado correctamente", Toast.LENGTH_SHORT).show()
+                loadSuppliers() // Reload the suppliers from Firebase
+            } else {
+                Toast.makeText(context, "Error al eliminar proveedor", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
 

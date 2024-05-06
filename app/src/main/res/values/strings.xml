@@ -26,6 +26,8 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_camera">CameraActivity</string>
+    <string name="supplier_since">Proveedor desde</string>
+
 
 
 </resources>

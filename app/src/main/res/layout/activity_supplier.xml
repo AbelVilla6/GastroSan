@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.SupplierActivity">
+
+    <!-- Toolbar con margen -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- activity_supplier_details.xml -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="20dp">
+
+            <!-- Logo centrado a la izquierda -->
+
+            <ImageView
+                android:id="@+id/imageViewLogo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:src="@drawable/default_logo" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                >
+                <!-- Nombre del proveedor -->
+                <TextView
+                    android:id="@+id/textViewSupplierName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Nombre del Proveedor"
+                    android:textStyle="bold"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                <TextView
+                    android:id="@+id/textViewRegistrationDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Proveedor desde..."
+                    android:layout_gravity="center"
+                    android:textStyle="italic"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@android:color/darker_gray" />
+
+            </LinearLayout>
+        </LinearLayout>
+        <!-- LinearLayout para los detalles de contacto -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/textViewContactName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre de contacto - "
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginEnd="8dp"/>
+            <ImageView
+                android:id="@+id/phone_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_call_24"
+                app:tint="#0590FF"
+                android:layout_marginEnd="8dp"
+                />
+            <TextView
+                android:id="@+id/textViewContactPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Teléfono de contacto"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                />
+
+
+        </LinearLayout>
+
+
+
+
+        <!-- Similar TextViews for other details -->
+
+        <GridView
+            android:id="@+id/gridViewInvoices"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:numColumns="3"/>
+
+        <Button
+            android:id="@+id/buttonAddInvoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Añadir Factura"/>
+
+        <!-- More buttons for other actions -->
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
