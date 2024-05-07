@@ -105,6 +105,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.2")
     implementation("androidx.camera:camera-extensions:1.3.2")
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    implementation("it.sephiroth.android.library.imagezoom:imagezoom:2.3.0")
+
 
 
     /*// Si necesitas análisis de imagen (por ejemplo, para códigos QR o procesamiento en tiempo real)
@@ -117,6 +119,7 @@ dependencies {
 
     //Animaciones
     implementation("com.airbnb.android:lottie:4.2.0")
+
 
 
 

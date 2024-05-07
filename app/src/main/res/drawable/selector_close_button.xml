@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/selector_close_button.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Estado presionado -->
+    <item android:drawable="@drawable/ic_close"
+        android:state_pressed="true" />
+    <!-- Estado predeterminado -->
+    <item android:drawable="@drawable/baseline_close_24" />
+</selector>

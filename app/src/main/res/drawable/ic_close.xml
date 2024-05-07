@@ -1,0 +1,12 @@
+<!-- res/drawable/ic_close_pressed.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#BDBDBD"/> <!-- Gris claro para el fondo -->
+            <size
+                android:width="40dp"
+                android:height="40dp"/>
+        </shape>
+    </item>
+    <item android:drawable="@drawable/baseline_close_24" android:gravity="center"/>
+</layer-list>
