@@ -28,6 +28,11 @@ class MenuActivity : AppCompatActivity() {
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (intent.getBooleanExtra("navigateToCameraFragment", false)) {
+            val navController = findNavController(R.id.nav_host_fragment_activity_menu)
+            navController.navigate(R.id.navigation_camera)
+        }
+
         toolbar = binding.toolbar
         setSupportActionBar(toolbar)
 

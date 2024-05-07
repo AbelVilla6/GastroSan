@@ -31,8 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="20dp">
+            android:gravity="center">
 
             <!-- Logo centrado a la izquierda -->
 
@@ -40,30 +39,30 @@
                 android:id="@+id/imageViewLogo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:gravity="center"
-                android:src="@drawable/default_logo" />
+                android:src="@drawable/default_logo"
+                android:layout_marginEnd="16dp"/>
+
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                >
+                android:gravity="center_vertical">
                 <!-- Nombre del proveedor -->
                 <TextView
                     android:id="@+id/textViewSupplierName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="Nombre del Proveedor"
+                    android:layout_gravity="center"
                     android:textStyle="bold"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
                 <TextView
                     android:id="@+id/textViewRegistrationDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Proveedor desde..."
                     android:layout_gravity="center"
+                    android:text="Proveedor desde..."
                     android:textStyle="italic"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@android:color/darker_gray" />
@@ -75,14 +74,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="8dp">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/textViewContactName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre de contacto - "
+                android:text="Nombre de contacto : "
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginEnd="8dp"/>
             <ImageView
@@ -98,14 +96,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Teléfono de contacto"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                />
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 
         </LinearLayout>
-
-
-
 
         <!-- Similar TextViews for other details -->
 
@@ -114,15 +108,72 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:numColumns="3"/>
+            android:numColumns="3"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/gridview_border"/>
 
-        <Button
-            android:id="@+id/buttonAddInvoice"
+        <TextView
+            android:id="@+id/textViewEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Este proveedor no tiene ninguna factura almacenada."
+            android:visibility="gone"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"/>
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Añadir Factura"/>
+            android:orientation="horizontal"
+            android:gravity="center">
 
-        <!-- More buttons for other actions -->
+            <ImageView
+                android:id="@+id/addSupplier"
+                android:layout_width="48dp"
+                android:layout_height="47dp"
+                android:src="@drawable/baseline_add"
+                app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
+
+            <ImageView
+                android:id="@+id/deleteSupplier"
+                android:layout_width="48dp"
+                android:layout_height="47dp"
+                android:layout_marginStart="80dp"
+                android:src="@drawable/baseline_delete"
+                app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
+
+            <Button
+                android:id="@+id/buttonCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Cancelar"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/buttonDelete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Eliminar"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+
+
+        </LinearLayout>
+
+        <!-- Botón para eliminar al proveedor -->
+        <Button
+            android:id="@+id/buttonDeleteSupplier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Eliminar Proveedor"
+            android:layout_marginTop="8dp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
