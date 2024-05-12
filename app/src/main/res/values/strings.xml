@@ -27,7 +27,7 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="supplier_since">Proveedor desde</string>
-
+    <string name="underlined_text"><u>Ver Factura</u></string>
 
 
 </resources>
