@@ -17,7 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cantidad"
-        android:inputType="number"/>
+        android:inputType="number"
+        android:maxLength="20"/>
 
     <EditText
         android:id="@+id/input_lote"
