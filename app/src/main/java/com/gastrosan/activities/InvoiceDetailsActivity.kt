@@ -176,6 +176,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             val checkBox = row.getChildAt(0) as CheckBox
             if (checkBox.isChecked) {
                 table.removeViewAt(i)
+                val itemId = row.getTag() as String  // Asumiendo que guardaste la ID de Firebase como tag de la fila
+                removeItemFromFirebase(itemId)  // Llama a la función para eliminar de Firebase
             } else {
                 i++
             }
@@ -262,10 +264,10 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         table.addView(createHeaderRow(headerTitles, headerWeights))
 
-        // Añadir filas de ejemplo
+        /*// Añadir filas de ejemplo
         for (i in 1..12) { // Cambiar por datos reales
             addRowToTable("Itemsssssssssssssssss $i", i, "Lot $i", "100", (100 * i).toString(), false)
-        }
+        }*/
 
         updateEmptyMessageAndTotal()
         updateDeleteButtonState()
@@ -324,6 +326,9 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     addRowToTable(name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), formatPrice(importe))
                     updateEmptyMessageAndTotal()
                     dialog.dismiss()
+
+                    // Llama a la función para añadir a Firebase
+                    addArticleToFirebase(invoiceId!!, name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), importe)
                 } else {
                     Toast.makeText(this, "Por favor, corrige los errores antes de añadir.", Toast.LENGTH_SHORT).show()
                 }
@@ -379,6 +384,9 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     addRowToTable(name, null, null, null, formatPrice(importe), isExtraCost = true)
                     updateEmptyMessageAndTotal()
                     dialog.dismiss()
+
+                    // Llama a la función para añadir a Firebase
+                    addExtraCostToFirebase(invoiceId!!, name, importe)
                 }
                 else {
                     Toast.makeText(this, "Por favor, corrige los errores antes de continuar.", Toast.LENGTH_SHORT).show()
@@ -598,6 +606,62 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         return scrollView
     }
+    //Trabajar con Firebase
+    fun addArticleToFirebase(invoiceId: String, name: String, quantity: Int, lotNumber: String, pvp: String, cost: Double) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val supplierId = intent.getStringExtra("supplierId") ?: return
+
+        val itemData = mapOf(
+            "name" to name,
+            "qty" to quantity,
+            "lot_number" to lotNumber,
+            "pvp" to pvp,
+            "cost" to cost
+        )
+
+        val invoiceRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/items")
+        invoiceRef.push().setValue(itemData)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Artículo añadido a la factura.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al añadir artículo.", Toast.LENGTH_SHORT).show()
+            }
+    }
+    fun addExtraCostToFirebase(invoiceId: String, name: String, cost: Double) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val supplierId = intent.getStringExtra("supplierId") ?: return
+
+        val extraCostData = mapOf(
+            "name" to name,
+            "cost" to cost
+        )
+
+        val extraCostRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/extra_costs")
+        extraCostRef.push().setValue(extraCostData)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Coste extra añadido a la factura.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al añadir coste extra.", Toast.LENGTH_SHORT).show()
+            }
+    }
+    fun removeItemFromFirebase(itemId: String) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val supplierId = intent.getStringExtra("supplierId") ?: return
+        val invoiceId = intent.getStringExtra("invoiceId") ?: return
+
+        val itemRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/items/$itemId")
+        itemRef.removeValue()
+            .addOnSuccessListener {
+                Toast.makeText(this, "Artículo eliminado correctamente.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al eliminar artículo.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
 
     private fun createPdf() {
         val doc = Document()
@@ -699,13 +763,11 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "Error al crear PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
     fun Bitmap.toByteArray(): ByteArray {
         val stream = ByteArrayOutputStream()
         this.compress(Bitmap.CompressFormat.PNG, 100, stream)
         return stream.toByteArray()
     }
-
     fun Drawable.toBitmap(): Bitmap {
         if (this is BitmapDrawable) {
             return this.bitmap
@@ -716,7 +778,6 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         this.draw(canvas)
         return bitmap
     }
-
     private fun drawableToByteArray(drawableId: Int): ByteArray {
         val drawable = ContextCompat.getDrawable(this, drawableId) as BitmapDrawable
         val bitmap = drawable.bitmap
@@ -724,7 +785,6 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
         return stream.toByteArray()
     }
-
     class FooterEvent : PdfPageEventHelper() {
         override fun onEndPage(writer: PdfWriter, document: Document) {
             val footerText = "Todos los Derechos Reservados - GastroSan ©, ${SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date())}"
