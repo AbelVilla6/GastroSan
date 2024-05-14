@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -33,9 +34,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.gastrosan.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.itextpdf.text.Document
 import com.itextpdf.text.Image
 import com.itextpdf.text.Paragraph
@@ -49,6 +55,8 @@ import java.util.Locale
 import com.itextpdf.text.*
 import com.itextpdf.text.html.WebColors
 import com.itextpdf.text.pdf.*
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -77,7 +85,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     private val headerTitles = arrayOf("Nombre", "Cantidad", "N° Lote", "PVP", "Importe")
     private val headerWeights = arrayOf(2.75f, 1.75f, 2.0f, 1.5f, 2.0f) // Pesos para el layout de las columnas
 
-    //private var shouldShow: Boolean = false
+    private var supplierLogoUrl: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +108,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         emptyMessage = findViewById<TextView>(R.id.empty_table_message)
         deleteRowsButton = findViewById(R.id.delete_rows_button)
         deleteRowsSelectedButton = findViewById(R.id.delete_rows_selected_button)
+        val supplierId = intent.getStringExtra("supplierId") // Asegúrate de tener este dato disponible
+
 
         deleteRowsButton.setOnClickListener {
             toggleCheckBoxesVisibility()
@@ -115,10 +125,20 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             showAddDataRowDialog()
         }
         buttonSavePdf.setOnClickListener {
-            createPdf()
+            println("Supplier logo URL: $supplierLogoUrl")
+            println("Supplier ID: $supplierId")
+            if (supplierLogoUrl != null) {
+                createPdfWithLogo()
+            } else {
+                Toast.makeText(this, "Esperando la carga del logo del proveedor...", Toast.LENGTH_SHORT).show()
+                // Podrías intentar recargar el logo aquí si no se ha cargado correctamente antes
+                supplierId?.let { loadSupplierLogo(it) }
+            }
         }
 
     }
+
+
 
     private fun setupData() {
         val imageUrl = intent.getStringExtra("imageUrl")
@@ -126,15 +146,83 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         val date = intent.getStringExtra("date")
         val time = intent.getStringExtra("time")
         invoiceId = intent.getStringExtra("invoiceId")
+        val supplierId = intent.getStringExtra("supplierId") // Asegúrate de tener este dato disponible
+
 
         Glide.with(this).load(imageUrl).into(imageViewInvoice)
         textViewSupplierName.text = supplierName
         textViewDate.text = "$date a las $time"
 
+        // Recuperar detalles de la factura desde Firebase
+        loadInvoiceDetails()
+
+        if (supplierId != null) {
+            loadSupplierLogo(supplierId)
+        } else {
+            Toast.makeText(this, "Supplier ID is missing", Toast.LENGTH_SHORT).show()
+        }
+
         deleteRowsSelectedButton.setOnClickListener {
             showDeleteConfirmationDialog()
         }
     }
+    private fun loadInvoiceDetails() {
+        invoiceId?.let { invoiceId ->
+            val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+            val supplierId = intent.getStringExtra("supplierId") ?: return
+
+            // Cargar los items regulares
+            val itemsRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+                .getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/items")
+
+            itemsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (itemSnapshot in snapshot.children) {
+                            val name = itemSnapshot.child("name").value.toString()
+                            val quantity = itemSnapshot.child("qty").value.toString().toInt()
+                            val lotNumber = itemSnapshot.child("lot_number").value.toString()
+                            val pvp = itemSnapshot.child("pvp").value.toString()
+                            val cost = itemSnapshot.child("cost").value.toString().toDouble()
+
+                            val row = addRowToTable(name, quantity, lotNumber, pvp, formatPrice(cost), false, false)
+                            table.addView(row)
+                        }
+                    }
+                    updateEmptyMessageAndTotal()
+                    updateDeleteButtonState()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    println("Failed to load item details: ${error.message}")
+                }
+            })
+
+            // Cargar los extra costs
+            val extraCostsRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+                .getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/extra_costs")
+
+            extraCostsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (extraSnapshot in snapshot.children) {
+                            val name = extraSnapshot.child("name").value.toString()
+                            val cost = extraSnapshot.child("cost").value.toString().toDouble()
+
+                            val row = addRowToTable(name, null, null, null, formatPrice(cost), true, false)
+                            table.addView(row)
+                        }
+                    }
+                    updateEmptyMessageAndTotal()
+                    updateDeleteButtonState()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    println("Failed to load extra cost details: ${error.message}")}
+            })
+        }
+    }
+
     private fun showDeleteConfirmationDialog() {
         val selectedRowsCount = getSelectedRowsCount()
         if (selectedRowsCount > 0) {
@@ -171,24 +259,44 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
     private fun deleteSelectedRows() {
         var i = 1
+        val rowsToDelete = mutableListOf<TableRow>()
         while (i < table.childCount) {
             val row = table.getChildAt(i) as TableRow
             val checkBox = row.getChildAt(0) as CheckBox
-            if (checkBox.isChecked) {
-                table.removeViewAt(i)
-                val itemId = row.getTag() as String  // Asumiendo que guardaste la ID de Firebase como tag de la fila
-                removeItemFromFirebase(itemId)  // Llama a la función para eliminar de Firebase
+            val tagObject = row.tag
+
+            if (tagObject is Map<*, *>) {
+                val isExtraCost = tagObject["isExtraCost"] as? Boolean ?: false
+                val itemId = tagObject["firebaseKey"] as? String
+
+                println("Deleting: ID=$itemId, isExtraCost=$isExtraCost")
+
+                if ((row.getChildAt(0) as? CheckBox)?.isChecked == true && itemId != null) {
+                    removeItemFromFirebase(itemId, isExtraCost)
+                    table.removeViewAt(i)
+                } else {
+                    i++
+                }
             } else {
                 i++
             }
         }
-        resetTableState()
+        rowsToDelete.forEach { row ->
+            val tagObject = row.tag as? Map<*, *>
+            val isExtraCost = tagObject?.get("isExtraCost") as? Boolean ?: false
+            val itemId = tagObject?.get("firebaseKey") as? String
 
+            if (itemId != null) {
+                removeItemFromFirebase(itemId, isExtraCost)
+                table.removeView(row)
+            }
+        }
+        updateTotal()
+        resetTableState()
         updateDeleteButtonState()
         updateEmptyMessageAndTotal()
-        //shouldShow = true
-        //buttonAddRow.visibility = View.VISIBLE
     }
+
     private fun resetTableState() {
         // Eliminar el checkbox del encabezado si está presente
         val headerRow = table.getChildAt(0) as TableRow
@@ -304,7 +412,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             button.setOnClickListener {
                 val name = formatName(nameInput.text.toString())
                 val quantity = quantityInput.text.toString().toIntOrNull()
-                val pvp = normalizePvpInput(pvpInput.text.toString())
+                val pvpDouble = parsePrice(pvpInput.text.toString())
 
                 var isValid = true
                 if (name.isBlank()) {
@@ -315,28 +423,30 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     quantityInput.error = "Cantidad inválida"
                     isValid = false
                 }
-                if (pvp.isBlank()) {
-                    pvpInput.error = "Campo obligatorio"
+                if (pvpDouble == null) {
+                    pvpInput.error = "Formato de precio inválido"
                     isValid = false
                 }
 
-                if (isValid) {
-                    val pvpDouble = parseGermanNumber(pvp)
-                    val importe = calculateImporte(quantity!!, pvpDouble)
-                    addRowToTable(name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), formatPrice(importe))
+                if (isValid && pvpDouble != null) {
+                    val importe = calculateImporte(quantity, pvpDouble)
+                    val row = addRowToTable(name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), formatPrice(importe), false, false)
+                    table.addView(row)  // Asegúrate de añadir la fila a la tabla aquí
+                    updateDeleteButtonState()
                     updateEmptyMessageAndTotal()
                     dialog.dismiss()
 
                     // Llama a la función para añadir a Firebase
-                    addArticleToFirebase(invoiceId!!, name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), importe)
-                } else {
-                    Toast.makeText(this, "Por favor, corrige los errores antes de añadir.", Toast.LENGTH_SHORT).show()
+                    if (quantity != null) {
+                        addArticleToFirebase(invoiceId!!, name, quantity, lotInput.text.toString(), formatPrice(pvpDouble), importe, row)
+                    }
                 }
             }
         }
 
         dialog.show()
     }
+
 
 
     @SuppressLint("MissingInflatedId")
@@ -355,41 +465,29 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             button.setOnClickListener {
                 val name = formatName(nameInput.text.toString())
-                val importeText = normalizePvpInput(importInput.text.toString())
+                val importe = parsePrice(importInput.text.toString())
                 var isValid = true
 
-                // Validaciones
                 if (name.isBlank()) {
                     nameInput.error = "Campo obligatorio"
                     isValid = false
                 }
-                if (importeText.isBlank()) {
-                    importInput.error = "Campo obligatorio"
-                    isValid = false
-                }
-
-                val importe = try {
-                    NumberFormat.getNumberInstance(Locale.GERMANY).parse(importeText)?.toDouble() ?: 0.0
-                } catch (e: ParseException) {
-                    importInput.error = "Formato de número inválido"
-                    0.0
-                }
-
-                if (importe <= 0) {
-                    importInput.error = "El importe debe ser mayor que 0"
+                if (importe == null || importe <= 0) {
+                    importInput.error = "El importe debe ser un número válido y mayor que 0"
                     isValid = false
                 }
 
                 if (isValid) {
-                    addRowToTable(name, null, null, null, formatPrice(importe), isExtraCost = true)
+                    val row = addRowToTable(name, null, null, null, formatPrice(importe!!), true, false)
+                    table.addView(row)
                     updateEmptyMessageAndTotal()
+                    updateDeleteButtonState()
                     dialog.dismiss()
 
                     // Llama a la función para añadir a Firebase
-                    addExtraCostToFirebase(invoiceId!!, name, importe)
-                }
-                else {
-                    Toast.makeText(this, "Por favor, corrige los errores antes de continuar.", Toast.LENGTH_SHORT).show()
+                    if (importe != null) {
+                        addExtraCostToFirebase(invoiceId!!, name, importe, row)
+                    }
                 }
             }
         }
@@ -399,10 +497,20 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
 
 
+
     private fun normalizePvpInput(input: String): String {
         // Replace comma with dot and ensure only one decimal place
         return input.replace(',', '.')
     }
+    private fun parsePrice(input: String): Double? {
+        val normalizedInput = input.replace(',', '.')
+        return try {
+            NumberFormat.getNumberInstance(Locale.US).parse(normalizedInput)?.toDouble()
+        } catch (e: ParseException) {
+            null
+        }
+    }
+
 
     private fun parseGermanNumber(number: String): Double {
         try {
@@ -426,31 +534,34 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     }
 
 
-    private fun addRowToTable(name: String, quantity: Int?, lot: String?, pvp: String?, importe: String, isExtraCost: Boolean = false, includeCheckbox: Boolean = false) {
+    private fun addRowToTable(name: String, quantity: Int?, lot: String?, pvp: String?, importe: String, isExtraCost: Boolean = false, includeCheckbox: Boolean = false): TableRow {
         val row = TableRow(this).apply {
+            tag = if (isExtraCost) "extraCost" else "item"
             layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)
             background = if (isExtraCost) ContextCompat.getDrawable(this@InvoiceDetailsActivity, R.drawable.table_cell_extra_cost_background)
             else ContextCompat.getDrawable(this@InvoiceDetailsActivity, R.drawable.table_cell_background)
         }
-
+        // Opción para incluir o no un CheckBox
         if (includeCheckbox) {
             val checkBox = CheckBox(this)
             checkBox.visibility = View.VISIBLE
-            // Aquí asignamos un peso muy pequeño para hacer la celda del checkbox más estrecha
-            val checkBoxParams = TableRow.LayoutParams(dpToPx(5), TableRow.LayoutParams.MATCH_PARENT)
-            row.addView(checkBox, checkBoxParams)
+            row.addView(checkBox, TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT))
         }
 
-        // Asegúrate de que la suma de los pesos de todas las celdas más el peso del checkbox sea coherente
-        row.addView(createCell(getValidText(name), 2.74f, isExtraCost))
+        // Añadir otras celdas aquí...
+        row.addView(createCell(getValidText(name), 2.75f, isExtraCost))
         row.addView(createCell(getValidText(quantity?.toString()), 1.75f, isExtraCost))
         row.addView(createCell(getValidText(lot), 2.0f, isExtraCost))
         row.addView(createCell(getValidText(pvp), 1.5f, isExtraCost))
         row.addView(createCell(importe, 2.0f, isExtraCost))
 
-        table.addView(row)
+        println("Row tag: ${row.tag}")
+        //table.addView(row)
         updateDeleteButtonState()
+
+        return row
     }
+
 
 
 
@@ -459,8 +570,11 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     }
 
     private fun updateDeleteButtonState() {
+        // +1 debido al encabezado; muestra el botón si hay al menos una fila de datos.
+        println("Table child count: ${table.childCount}")
         deleteRowsButton.visibility = if (table.childCount > 1) View.VISIBLE else View.GONE
     }
+
 
     private fun toggleCheckBoxesVisibility() {
         val shouldShow = deleteRowsButton.visibility == View.VISIBLE
@@ -518,21 +632,42 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     }
     private fun updateTotal() {
         val format = NumberFormat.getNumberInstance(Locale.GERMANY) // Ajusta el formato según tus necesidades
-        var total = 0.0
-        for (i in 1 until table.childCount) {
-            val row = table.getChildAt(i) as TableRow
-            val scrollView = row.getChildAt(4) as HorizontalScrollView // Acceder al HorizontalScrollView que ahora contiene el TextView
-            val frameLayout = scrollView.getChildAt(0) as FrameLayout
-            val importeCell = frameLayout.getChildAt(0) as TextView
-            val importeText = importeCell.text.toString()
-            try {
-                val importe = format.parse(importeText)?.toDouble() ?: 0.0
-                total += importe
-            } catch (e: ParseException) {
-                println("Failed to parse importe '$importeText' at row $i: ${e.message}")
+        if (table.childCount > 1) {
+            var total = 0.0
+            for (i in 1 until table.childCount) {
+                val row = table.getChildAt(i) as TableRow
+                val importeColumnIndex = if (row.getChildAt(0) is CheckBox) 5 else 4
+
+                val scrollView = row.getChildAt(importeColumnIndex) as HorizontalScrollView // Acceder al ScrollView correcto
+                val frameLayout = scrollView.getChildAt(0) as FrameLayout
+                val importeCell = frameLayout.getChildAt(0) as TextView
+                val importeText = importeCell.text.toString()
+                try {
+                    val importe = format.parse(importeText)?.toDouble() ?: 0.0
+                    total += importe
+                } catch (e: ParseException) {
+                    println("Failed to parse importe '$importeText' at row $i: ${e.message}")
+                }
             }
+            findViewById<TextView>(R.id.textViewTotal).text = "Total: ${String.format("%.2f", total)}€"
+            updateTotalCost(invoiceId!!, total)  // Actualiza el total en Firebase
+        } else{
+            textViewTotal.text = "Total: €0.00"
+            updateTotalCost(invoiceId!!, 0.0)  // Actualiza el total en Firebase si no hay filas
         }
-        findViewById<TextView>(R.id.textViewTotal).text = "Total: ${String.format("%.2f", total)}€"
+
+    }
+    fun updateTotalCost(invoiceId: String, newTotal: Double) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val supplierId = intent.getStringExtra("supplierId") ?: return
+
+        val totalCostRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/total_cost")
+
+        totalCostRef.setValue(newTotal).addOnSuccessListener {
+        }.addOnFailureListener {
+            println("Failed to update total cost: ${it.message}")
+        }
     }
 
 
@@ -607,7 +742,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         return scrollView
     }
     //Trabajar con Firebase
-    fun addArticleToFirebase(invoiceId: String, name: String, quantity: Int, lotNumber: String, pvp: String, cost: Double) {
+    fun addArticleToFirebase(invoiceId: String, name: String, quantity: Int, lotNumber: String, pvp: String, cost: Double, row: TableRow) {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val supplierId = intent.getStringExtra("supplierId") ?: return
 
@@ -620,15 +755,16 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         )
 
         val invoiceRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/items")
-        invoiceRef.push().setValue(itemData)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Artículo añadido a la factura.", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al añadir artículo.", Toast.LENGTH_SHORT).show()
-            }
+        val newItemRef = invoiceRef.push()
+        newItemRef.setValue(itemData).addOnSuccessListener {
+            row.tag = mapOf("firebaseKey" to newItemRef.key, "item" to true)
+            updateTotal()  // Recalcular y actualizar el total después de añadir
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error al añadir artículo.", Toast.LENGTH_SHORT).show()
+        }
     }
-    fun addExtraCostToFirebase(invoiceId: String, name: String, cost: Double) {
+
+    fun addExtraCostToFirebase(invoiceId: String, name: String, cost: Double, row: TableRow) {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val supplierId = intent.getStringExtra("supplierId") ?: return
 
@@ -638,32 +774,62 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         )
 
         val extraCostRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/extra_costs")
-        extraCostRef.push().setValue(extraCostData)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Coste extra añadido a la factura.", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al añadir coste extra.", Toast.LENGTH_SHORT).show()
-            }
+        val newItemRef = extraCostRef.push()
+        newItemRef.setValue(extraCostData).addOnSuccessListener {
+            row.tag = mapOf("firebaseKey" to newItemRef.key, "isExtraCost" to true)
+            updateTotal()  // Recalcular y actualizar el total después de añadir
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error al añadir coste extra.", Toast.LENGTH_SHORT).show()
+        }
     }
-    fun removeItemFromFirebase(itemId: String) {
+    @SuppressLint("RestrictedApi")
+    fun removeItemFromFirebase(itemId: String, isExtraCost: Boolean) {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val supplierId = intent.getStringExtra("supplierId") ?: return
         val invoiceId = intent.getStringExtra("invoiceId") ?: return
+        // Determinar la ruta correcta en Firebase
+        val path = if (isExtraCost) "extra_costs" else "items"
 
-        val itemRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/items/$itemId")
+        val itemRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId/details/$path/$itemId")
+
+        println("Firebase path: ${itemRef.path}")
+
         itemRef.removeValue()
             .addOnSuccessListener {
-                Toast.makeText(this, "Artículo eliminado correctamente.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Elemento eliminado correctamente.", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error al eliminar artículo.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al eliminar elemento.", Toast.LENGTH_SHORT).show()
             }
     }
+    private fun createPdfWithLogo() {
+        println("Starting PDF creation with logo...")
+        val logoUrl = supplierLogoUrl // Asumiendo que tienes una variable para la URL del logo
+        println("Logo URL: $logoUrl")
 
+        Glide.with(this)
+            .asBitmap()
+            .load(logoUrl)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    println("Logo loaded successfully")
+                    createPdf(resource)
+                }
 
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    // Handle placeholder if needed
+                }
 
-    private fun createPdf() {
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    println("Failed to load logo from URL")
+                    createPdf(null) // Continue to create PDF without logo
+                }
+            })
+    }
+
+    private fun createPdf(logoBitmap: Bitmap?) {
+        println("Starting PDF creation...")
         val doc = Document()
         try {
             val resolver = contentResolver
@@ -679,45 +845,64 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
             val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
             uri?.let {
+                println("URI for PDF: $it")
                 resolver.openOutputStream(it).use { outputStream ->
                     val writer = PdfWriter.getInstance(doc, outputStream)
                     doc.open()
 
-                    // Encabezado con logo y color personalizado
+                    // Encabezado con logo_gastrosan y color personalizado
                     val header = PdfPTable(1).apply {
                         widthPercentage = 100f
                         val cell = PdfPCell().apply {
                             val primaryColor = WebColors.getRGBColor("#302B63") // Reemplaza con tu código de color
                             backgroundColor = BaseColor(primaryColor.red, primaryColor.green, primaryColor.blue)
                             border = Rectangle.NO_BORDER
-                            val logo = Image.getInstance(drawableToByteArray(R.drawable.logo_gastrosan))
-                            logo.scaleToFit(80f, 80f)
-                            logo.alignment = Image.ALIGN_CENTER
-                            addElement(logo)
+                            val logoGastrosan = Image.getInstance(drawableToByteArray(R.drawable.logo_gastrosan))
+                            logoGastrosan.scaleToFit(80f, 80f)
+                            logoGastrosan.alignment = Image.ALIGN_CENTER
+                            addElement(logoGastrosan)
                         }
                         addCell(cell)
                     }
                     doc.add(header)
+                    doc.add(Paragraph(" ")) // Agregar espacio
 
-                    // Agregar detalles del proveedor y fecha con texto adicional
-                    doc.add(Paragraph("Distribuidor: ${textViewSupplierName.text.toString()}").apply {
-                        alignment = Element.ALIGN_CENTER
-                    })
-                    doc.add(Paragraph("Factura subida a GastroSan el ${textViewDate.text.toString()}").apply {
-                        alignment = Element.ALIGN_CENTER
-                    })
+                    // Agregar logo del proveedor junto al nombre del distribuidor
+                    val supplierDetailsTable = PdfPTable(2).apply {
+                        widthPercentage = 100f
+                        setWidths(intArrayOf(1, 3)) // Proporciones de las columnas
+                    }
+                    logoBitmap?.let {
+                        val logo = Image.getInstance(it.toByteArray())
+                        logo.scaleToFit(100f, 100f) // Hacer el logo más grande
+                        val logoCell = PdfPCell(logo).apply {
+                            border = Rectangle.NO_BORDER
+                            verticalAlignment = Element.ALIGN_MIDDLE
+                            paddingRight = 20f // Mover el logo un poco más a la derecha
+                        }
+                        supplierDetailsTable.addCell(logoCell)
+                    } ?: run {
+                        supplierDetailsTable.addCell(PdfPCell().apply { border = Rectangle.NO_BORDER })
+                    }
+                    val textCell = PdfPCell(Paragraph("Distribuidor: ${textViewSupplierName.text}\nFactura subida a GastroSan el ${textViewDate.text}")).apply {
+                        border = Rectangle.NO_BORDER
+                        verticalAlignment = Element.ALIGN_MIDDLE
+                    }
+                    supplierDetailsTable.addCell(textCell)
+                    doc.add(supplierDetailsTable)
+                    doc.add(Paragraph(" ")) // Agregar espacio
 
                     // Espacio antes de la imagen de la factura
-                    doc.add(Chunk.NEWLINE)
+                    doc.add(Paragraph(" ")) // Espacio arriba de la imagen
 
                     // Agregar la imagen de la factura centrada y más grande
                     val invoiceImage = Image.getInstance(imageViewInvoice.drawable.toBitmap().toByteArray())
-                    invoiceImage.scaleToFit(300f, 200f) // Ajusta estos valores según tus necesidades
+                    invoiceImage.scaleToFit(200f, 300f) // Ajusta estos valores según tus necesidades
                     invoiceImage.alignment = Image.ALIGN_CENTER
                     doc.add(invoiceImage)
+                    doc.add(Paragraph(" ")) // Espacio debajo de la imagen
+                    doc.add(Paragraph(" ")) // Espacio debajo de la imagen
 
-                    // Espacio antes de la tabla
-                    doc.add(Chunk.NEWLINE)
 
                     // Agregar tabla
                     val pdfTable = PdfPTable(5)
@@ -753,7 +938,6 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
                     writer.pageEvent = FooterEvent()
 
-
                     doc.close()
                     Toast.makeText(this, "PDF guardado en Downloads", Toast.LENGTH_LONG).show()
                 }
@@ -763,6 +947,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "Error al crear PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
     fun Bitmap.toByteArray(): ByteArray {
         val stream = ByteArrayOutputStream()
         this.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -785,6 +970,27 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
         return stream.toByteArray()
     }
+    private fun loadSupplierLogo(supplierId: String) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val logoRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("users/$userUid/suppliers/$supplierId/logoUrl")
+
+        logoRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    supplierLogoUrl = snapshot.value as String?
+                    // Ahora puedes llamar a createPdf() si es necesario en este punto
+                } else {
+                    Toast.makeText(applicationContext, "Logo URL no encontrado", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(applicationContext, "Error al cargar el logo: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     class FooterEvent : PdfPageEventHelper() {
         override fun onEndPage(writer: PdfWriter, document: Document) {
             val footerText = "Todos los Derechos Reservados - GastroSan ©, ${SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date())}"
