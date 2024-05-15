@@ -90,6 +90,9 @@ class SupplierActivity : AppCompatActivity() {
 
     private var isDialogShown: Boolean = false
 
+    private lateinit var profileIcon: ImageView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_supplier)
@@ -109,6 +112,8 @@ class SupplierActivity : AppCompatActivity() {
         textViewContactPhone = findViewById(R.id.textViewContactPhone)
         editTextContactPhone = findViewById(R.id.editTextViewContactPhone)
         imageViewLogo = findViewById(R.id.imageViewLogo)
+        profileIcon = findViewById(R.id.profile_icon)
+
 
         // Recuperar el ID pasado desde DashboardFragment
         val supplierId = intent.getStringExtra("supplierId")
@@ -119,6 +124,10 @@ class SupplierActivity : AppCompatActivity() {
         addSupplier.setOnClickListener {
             val intent = Intent(this@SupplierActivity, MenuActivity::class.java)
             intent.putExtra("navigateToCameraFragment", true)
+            startActivity(intent)
+        }
+        profileIcon.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
 

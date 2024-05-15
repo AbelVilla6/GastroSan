@@ -77,6 +77,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     private lateinit var deleteRowsSelectedButton: Button
     private lateinit var buttonSavePdf: Button
 
+    private lateinit var profileIcon: ImageView
 
     private lateinit var table: TableLayout
     private var invoiceId: String? = null
@@ -108,8 +109,13 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         emptyMessage = findViewById<TextView>(R.id.empty_table_message)
         deleteRowsButton = findViewById(R.id.delete_rows_button)
         deleteRowsSelectedButton = findViewById(R.id.delete_rows_selected_button)
+        profileIcon = findViewById(R.id.profile_icon)
         val supplierId = intent.getStringExtra("supplierId") // Asegúrate de tener este dato disponible
 
+        profileIcon.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
+            startActivity(intent)
+        }
 
         deleteRowsButton.setOnClickListener {
             toggleCheckBoxesVisibility()

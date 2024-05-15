@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +36,6 @@ import com.gastrosan.activities.AddSupplierActivity
 import com.gastrosan.activities.SupplierActivity
 import java.util.Locale
 
-
 class DashboardFragment : Fragment() {
 
     private lateinit var listViewProviders: ListView
@@ -45,6 +44,7 @@ class DashboardFragment : Fragment() {
     private lateinit var deleteSupplier: ImageView
     private lateinit var buttonCancel: Button
     private lateinit var buttonDelete: Button
+    private lateinit var noProvidersMessage: TextView // Asegúrate de declarar esto
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
@@ -65,7 +65,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,6 +78,7 @@ class DashboardFragment : Fragment() {
         deleteSupplier = root.findViewById(R.id.deleteSupplier)
         buttonCancel = root.findViewById(R.id.buttonCancel)
         buttonDelete = root.findViewById(R.id.buttonDelete)
+        noProvidersMessage = root.findViewById(R.id.noProvidersMessage) // Inicializa la vista
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
@@ -164,7 +164,6 @@ class DashboardFragment : Fragment() {
         return root
     }
 
-
     private fun loadSuppliers() {
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
@@ -176,7 +175,6 @@ class DashboardFragment : Fragment() {
                 }
                 if (dataSnapshot.exists()) {
                     providerList.clear() // Limpiar lista anterior
-                    //val providerList = ArrayList<Suppliers>()
 
                     for (userSnapshot in dataSnapshot.children) {
                         val suppliersSnapshot = userSnapshot.child("suppliers")
@@ -194,13 +192,24 @@ class DashboardFragment : Fragment() {
                         }
                     }
 
-                    /*// Crear el adaptador personalizado
-                    val adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
-                    listViewProviders.adapter = adapter*/
+                    // Mostrar u ocultar el mensaje de "No hay proveedores" según sea necesario
+                    if (providerList.isEmpty()) {
+                        listViewProviders.visibility = View.GONE
+                        noProvidersMessage.visibility = View.VISIBLE
+                        searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
+                    } else {
+                        listViewProviders.visibility = View.VISIBLE
+                        noProvidersMessage.visibility = View.GONE
+                        searchView.visibility = View.VISIBLE // Mostrar SearchView si hay proveedores
+                    }
+
                     listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
 
                 } else {
                     println("No existe usuario con este correo electrónico.")
+                    listViewProviders.visibility = View.GONE
+                    noProvidersMessage.visibility = View.VISIBLE
+                    searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
                 }
             }
 
@@ -212,6 +221,11 @@ class DashboardFragment : Fragment() {
             }
         }
         usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(valueEventListener)
+    }
+    override fun onResume() {
+        super.onResume()
+        // Recargar los proveedores cuando el fragmento vuelve a estar activo
+        loadSuppliers()
     }
 
     override fun onDestroyView() {
@@ -230,6 +244,7 @@ class DashboardFragment : Fragment() {
             listViewProviders.adapter = normalAdapter
         }
     }
+
     class CustomSelectableAdapter(
         context: Context,
         objects: ArrayList<Suppliers>
@@ -288,7 +303,6 @@ class DashboardFragment : Fragment() {
             return view
         }
 
-
         override fun getCount(): Int = filteredSuppliersList.size
 
         override fun getItem(position: Int): Suppliers? = filteredSuppliersList[position]
@@ -325,8 +339,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
-
     private fun deleteSupplierFromFirebase(supplierId: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userId/suppliers/$supplierId")
@@ -340,7 +352,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     class CustomAdapter(
         context: android.content.Context,
         resource: Int,
@@ -350,11 +361,12 @@ class DashboardFragment : Fragment() {
         private var supplierList: ArrayList<Suppliers> = objects
         private var filteredSupplierList: ArrayList<Suppliers> = objects
         private var originalSupplierList: ArrayList<Suppliers> = ArrayList(objects)
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val inflater = context.getSystemService(android.content.Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val row = inflater.inflate(R.layout.list_item_provider, parent, false)
 
-            if(position >=0 && position < filteredSupplierList.size){
+            if (position >= 0 && position < filteredSupplierList.size) {
                 // Obtener el objeto Supplier en la posición dada
                 val supplier = getItem(position)
 
@@ -398,6 +410,7 @@ class DashboardFragment : Fragment() {
             }
             return row
         }
+
         override fun getFilter(): Filter {
             return object : Filter() {
                 override fun performFiltering(constraint: CharSequence?): FilterResults {
@@ -429,7 +442,7 @@ class DashboardFragment : Fragment() {
                         // Limpiar la lista filtrada antes de agregar los resultados del filtro
                         filteredSupplierList.clear()
 
-                        if (constraint.isNullOrEmpty() ) {
+                        if (constraint.isNullOrEmpty()) {
                             // Si el filtro está vacío, mostrar toda la lista original de proveedores
                             filteredSupplierList.addAll(originalSupplierList)
                         } else {
@@ -445,10 +458,7 @@ class DashboardFragment : Fragment() {
                         println("Error al publicar resultados: $e")
                     }
                 }
-
-
             }
         }
     }
 }
-

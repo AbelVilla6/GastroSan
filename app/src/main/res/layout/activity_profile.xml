@@ -109,6 +109,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:text="C/Ejemplo 47, 1º"
+            android:hint="Dirección del restaurante"
             android:textIsSelectable="true"
             android:enabled="false"
             android:textColor="#D5FF0057"
@@ -200,6 +201,7 @@
                 android:enabled="false"
                 android:inputType="phone"
                 android:text="+34 000 00 00 00 "
+                android:hint="Nº de teléfono"
                 android:textIsSelectable="true"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -209,10 +211,34 @@
 
         </LinearLayout>
 
+        <!-- Campo de la contraseña actual -->
+        <EditText
+            android:id="@+id/current_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña actual"
+            android:inputType="textPassword"
+            app:layout_constraintTop_toBottomOf="@id/linearLayout2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"/>
+
+        <!-- Campo de la nueva contraseña -->
+        <EditText
+            android:id="@+id/new_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nueva contraseña"
+            android:inputType="textPassword"
+            app:layout_constraintTop_toBottomOf="@id/current_password"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -259,5 +285,7 @@
             app:layout_constraintVertical_bias="0.097" />
 
     </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

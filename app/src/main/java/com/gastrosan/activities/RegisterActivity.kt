@@ -123,6 +123,7 @@ class RegisterActivity : AppCompatActivity() {
             inputEmail!!.text.toString(),
             hashedPassword,
             "",
+            "",
             ""
 
         )

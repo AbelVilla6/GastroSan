@@ -1,5 +1,6 @@
 package com.gastrosan.activities
 
+import Users
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Intent
@@ -7,6 +8,7 @@ import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.os.Vibrator
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
@@ -25,7 +27,10 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.security.MessageDigest
 import java.util.concurrent.Executor
 
@@ -135,12 +140,53 @@ class LoginActivity : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
+                val user = mAuth?.currentUser
+                user?.let {
+                    checkAndSaveUser(it)
+                }
                 goToMenuActivity()
             } else {
                 Toast.makeText(this, "Ha ocurrido un error en nuestros servidores", Toast.LENGTH_SHORT).show()
             }
         }
     }
+    private fun checkAndSaveUser(user: FirebaseUser) {
+        val database = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users")
+        val uid = user.uid
+
+        database.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    val email = user.email
+                    val username = user.displayName ?: email?.substringBefore("@")
+                    val profilePic = user.photoUrl?.toString() ?: ""
+
+                    val newUser = Users(
+                        uid = uid,
+                        username = username,
+                        email = email,
+                        password = null, // Contraseña no se almacena para usuarios de Google
+                        phone = null,
+                        address = null,
+                        profilePic = profilePic
+                    )
+
+                    database.child(uid).setValue(newUser).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("LoginActivity", "Usuario guardado en la base de datos: $newUser")
+                        } else {
+                            Log.e("LoginActivity", "Error al guardar el usuario en la base de datos", task.exception)
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("LoginActivity", "Error al verificar la existencia del usuario", error.toException())
+            }
+        })
+    }
+
     private fun goToMenuActivity() {
         startActivity(Intent(this, MenuActivity::class.java))
         finish()
@@ -160,6 +206,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
 
 
     private fun checkCredentials(): Boolean {

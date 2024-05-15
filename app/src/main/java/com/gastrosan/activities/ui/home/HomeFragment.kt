@@ -21,7 +21,6 @@ class HomeFragment : Fragment() {
     private val menuOptions = arrayOf(
         "Consultar Proveedores",
         "Añadir Proveedor",
-        "Añadir Restaurante",
         "Añadir Factura"
     )
 
@@ -50,8 +49,8 @@ class HomeFragment : Fragment() {
             when (position) {
                 0 -> findNavController().navigate(R.id.navigation_dashboard)
                 1 -> startActivity(Intent(context, AddSupplierActivity::class.java));
-                2 -> Toast.makeText(requireContext(), "Añadir Restaurante", Toast.LENGTH_SHORT).show()
-                3 -> findNavController().navigate(R.id.navigation_camera)
+                //2 -> Toast.makeText(requireContext(), "Añadir Restaurante", Toast.LENGTH_SHORT).show()
+                2 -> findNavController().navigate(R.id.navigation_camera)
             }
         }
 
