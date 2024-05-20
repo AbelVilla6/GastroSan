@@ -63,7 +63,7 @@
                     android:onClick="onProfileIconClick"
                     android:padding="12dp"
                     android:background="@drawable/ripple_effect"
-                    android:src="@drawable/profile" />
+                    android:src="@drawable/profile_icon" />
             </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>

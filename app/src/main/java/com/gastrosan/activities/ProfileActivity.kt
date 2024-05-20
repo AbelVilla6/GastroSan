@@ -2,21 +2,18 @@ package com.gastrosan.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -27,27 +24,33 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.gastrosan.R
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import android.os.Vibrator
+import android.os.VibrationEffect
+import android.text.InputType
+
 
 class ProfileActivity : AppCompatActivity() {
-    private lateinit var barNameTxtView: EditText
-    private lateinit var big_bar_nameTxtView: TextView
-    private lateinit var addressEditText: EditText
+    private lateinit var barNameTxtView: TextView
+    private lateinit var barNameEdit: EditText
+    private lateinit var bigBarNameTxtView: TextView
+    private lateinit var addressTextView: TextView
+    private lateinit var addressEdit: EditText
     private lateinit var emailTxtView: TextView
-    private lateinit var phoneEditText: EditText
+    private lateinit var emailTxtViewEdit: TextView
+    private lateinit var phoneTextView: TextView
+    private lateinit var phoneEdit: EditText
     private lateinit var emailImageView: ImageView
     private lateinit var userImageView: CircleImageView
     private lateinit var signOutTxtView: TextView
     private lateinit var currentPasswordEditText: EditText
     private lateinit var newPasswordEditText: EditText
+    private lateinit var logoImgView: ImageView
     private val TAG = this::class.java.name.toUpperCase()
     private var email: String? = null
     private var userid: String? = null
@@ -55,6 +58,14 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var confirmButton: Button
     private var tempImageUri: Uri? = null
     private var photoFileUri: Uri? = null
+
+    private lateinit var linearLayout: LinearLayout
+    private lateinit var linearLayout4: LinearLayout
+    private lateinit var linearLayoutPhone: LinearLayout
+    private lateinit var linearLayoutPhoneEdit: LinearLayout
+    private lateinit var linearLayoutCurrentPassword: LinearLayout
+    private lateinit var linearLayoutNewPassword: LinearLayout
+    private lateinit var showPasswordCheckBox: CheckBox
 
     companion object {
         private const val CAMERA_REQUEST_CODE = 1002
@@ -73,18 +84,29 @@ class ProfileActivity : AppCompatActivity() {
         println("Email en Perfil: $email")
 
         // Referenciar las vistas
-        barNameTxtView = findViewById(R.id.bar_name)
-        big_bar_nameTxtView = findViewById(R.id.big_bar_name)
-        addressEditText = findViewById(R.id.address)
+        barNameTxtView = findViewById(R.id.bar_name_text)
+        barNameEdit = findViewById(R.id.bar_name_edit)
+        bigBarNameTxtView = findViewById(R.id.big_bar_name)
+        addressTextView = findViewById(R.id.address_text)
+        addressEdit = findViewById(R.id.address_edit)
         emailTxtView = findViewById(R.id.email_textview)
-        phoneEditText = findViewById(R.id.phone_textview)
+        emailTxtViewEdit = findViewById(R.id.email_textview_edit)
+        phoneTextView = findViewById(R.id.phone_text)
+        phoneEdit = findViewById(R.id.phone_edit)
         userImageView = findViewById(R.id.user_imageview)
         emailImageView = findViewById(R.id.email_imageview)
-        phoneEditText = findViewById(R.id.phone_textview)
         confirmButton = findViewById(R.id.confirm_button)
         signOutTxtView = findViewById(R.id.textView4)
         currentPasswordEditText = findViewById(R.id.current_password)
         newPasswordEditText = findViewById(R.id.new_password)
+        linearLayout = findViewById(R.id.linearLayout)
+        linearLayout4 = findViewById(R.id.linearLayout4)
+        linearLayoutPhone = findViewById(R.id.linearLayout_phone)
+        linearLayoutPhoneEdit = findViewById(R.id.linearLayout_phone_edit)
+        linearLayoutCurrentPassword = findViewById(R.id.linearLayoutCurrentPassword)
+        linearLayoutNewPassword = findViewById(R.id.linearLayoutNewPassword)
+        showPasswordCheckBox = findViewById(R.id.show_password_checkbox)
+        logoImgView = findViewById(R.id.logoImageView)
 
         loadUserProfile()
 
@@ -93,12 +115,40 @@ class ProfileActivity : AppCompatActivity() {
                 checkAndRequestPermissions()
             }
         }
+        showPasswordCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            togglePasswordVisibility(isChecked)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         // Cargar los datos del perfil cuando se reanuda la actividad
         loadUserProfile()
+    }
+    private fun togglePasswordVisibility(isChecked: Boolean) {
+        val currentPasswordTypeface = currentPasswordEditText.typeface
+        val currentPasswordTextSize = currentPasswordEditText.textSize
+
+        val newPasswordTypeface = newPasswordEditText.typeface
+        val newPasswordTextSize = newPasswordEditText.textSize
+
+        if (isChecked) {
+            currentPasswordEditText.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            newPasswordEditText.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        } else {
+            currentPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            newPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        currentPasswordEditText.typeface = currentPasswordTypeface
+        currentPasswordEditText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, currentPasswordTextSize)
+
+        newPasswordEditText.typeface = newPasswordTypeface
+        newPasswordEditText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, newPasswordTextSize)
+
+        // Mover el cursor al final del texto
+        currentPasswordEditText.setSelection(currentPasswordEditText.text.length)
+        newPasswordEditText.setSelection(newPasswordEditText.text.length)
     }
 
     private fun loadUserProfile() {
@@ -124,11 +174,15 @@ class ProfileActivity : AppCompatActivity() {
                         val uppercaseUsername = username.uppercase(Locale.ROOT)
 
                         // Mostrar los datos en las vistas
-                        barNameTxtView.text = Editable.Factory.getInstance().newEditable(username)
+                        barNameTxtView.text = username
+                        barNameEdit.text = Editable.Factory.getInstance().newEditable(username)
                         emailTxtView.text = email
-                        big_bar_nameTxtView.text = uppercaseUsername
-                        phoneEditText.text = Editable.Factory.getInstance().newEditable(phone)
-                        addressEditText.text = Editable.Factory.getInstance().newEditable(address)
+                        emailTxtViewEdit.text = email
+                        bigBarNameTxtView.text = uppercaseUsername
+                        phoneTextView.text = phone
+                        phoneEdit.text = Editable.Factory.getInstance().newEditable(phone)
+                        addressTextView.text = address
+                        addressEdit.text = Editable.Factory.getInstance().newEditable(address)
 
                         // Cargar la imagen de perfil si existe
                         if (profilePicUrl.isNotEmpty()) {
@@ -154,18 +208,28 @@ class ProfileActivity : AppCompatActivity() {
         })
     }
 
-
     // Método para manejar el clic en el ImageView del lápiz
     fun editProfile(view: View) {
         isEditModeEnabled = !isEditModeEnabled // Alternar el estado de la edición
 
-        // Habilitar o deshabilitar la edición de los campos según el estado actual
-        barNameTxtView.isEnabled = isEditModeEnabled
-        addressEditText.isEnabled = isEditModeEnabled
-        phoneEditText.isEnabled = isEditModeEnabled
+        // Alternar visibilidad entre EditText y TextView
+        barNameTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        barNameEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        addressTextView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        addressEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        phoneTextView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        phoneEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayout.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        linearLayout4.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayoutPhone.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        linearLayoutPhoneEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayoutCurrentPassword.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayoutNewPassword.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        logoImgView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
 
         // Cambiar la visibilidad del botón
         confirmButton.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        showPasswordCheckBox.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         signOutTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
         currentPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         newPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
@@ -177,24 +241,43 @@ class ProfileActivity : AppCompatActivity() {
             // Si se ha deshabilitado la edición, restaurar la imagen del lápiz
             (view as ImageView).setImageResource(R.drawable.baseline_edit_24_gray)
         }
-
-        // Mostrar un mensaje de confirmación
-        val message = if (isEditModeEnabled) "Editando perfil" else "Edición finalizada"
-        Toast.makeText(this@ProfileActivity, message, Toast.LENGTH_SHORT).show()
     }
+
+
 
     // Método para actualizar los datos del perfil y la contraseña en la base de datos
     fun updateUserProfile(view: View) {
-        val newUsername = barNameTxtView.text.toString()
-        val newAddress = addressEditText.text.toString()
-        val newPhone = phoneEditText.text.toString()
+        vibrateButton(this) // Llamar a la función de vibración
+
+        // Obtener los valores actuales
+        val currentUsername = barNameEdit.text.toString()
+        val currentAddress = addressEdit.text.toString()
+        val currentPhone = phoneEdit.text.toString()
+        // Obtener las contraseñas
+        val currentPassword = currentPasswordEditText.text.toString()
+        val newPassword = newPasswordEditText.text.toString()
+
+
+        // Verificar si hay cambios
+        val isUsernameChanged = currentUsername != barNameTxtView.text.toString()
+        val isAddressChanged = currentAddress != addressTextView.text.toString()
+        val isPhoneChanged = currentPhone != phoneTextView.text.toString()
+        val isProfilePicChanged = tempImageUri != null
+        val isPasswordChanged = currentPassword.isNotEmpty() && newPassword.isNotEmpty()
+
+
+        if (!isUsernameChanged && !isAddressChanged && !isPhoneChanged && !isProfilePicChanged && !isPasswordChanged) {
+            vibrateButton(this)
+            Toast.makeText(this, "No hay ningún cambio realizado", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         // Actualizar los valores en la base de datos
         val usersRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users")
         val userRef = usersRef.child(userid.toString())
-        userRef.child("username").setValue(newUsername)
-        userRef.child("address").setValue(newAddress)
-        userRef.child("phone").setValue(newPhone)
+        userRef.child("username").setValue(currentUsername)
+        userRef.child("address").setValue(currentAddress)
+        userRef.child("phone").setValue(currentPhone)
 
         // Si hay una nueva imagen, subirla y luego actualizar el perfil
         tempImageUri?.let { newImageUri ->
@@ -207,10 +290,6 @@ class ProfileActivity : AppCompatActivity() {
                     .into(userImageView)
             }
         }
-
-        // Actualizar la contraseña si se han proporcionado ambas contraseñas
-        val currentPassword = currentPasswordEditText.text.toString()
-        val newPassword = newPasswordEditText.text.toString()
 
         if (currentPassword.isNotEmpty() && newPassword.isNotEmpty()) {
             val user = FirebaseAuth.getInstance().currentUser
@@ -237,11 +316,32 @@ class ProfileActivity : AppCompatActivity() {
             finishUpdate()
         }
     }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        if (vibrator == null) {
+            println("Servicio de vibración no disponible")
+            return
+        }
+        if (!vibrator.hasVibrator()) {
+            println("El dispositivo no tiene vibrador")
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+            println("Vibrando API 26+")
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(100)
+            println("Vibrando API menor a 26")
+        }
+    }
+
 
     // Método para finalizar la actualización del perfil
     private fun finishUpdate() {
         // Mostrar un mensaje de éxito
-        Toast.makeText(this@ProfileActivity, "Perfil actualizado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@ProfileActivity, "El Perfil ha sido Actualizado", Toast.LENGTH_SHORT).show()
 
         // Deshabilitar el botón Confirmar Cambios y cambiar la imagen del lápiz a gris
         isEditModeEnabled = false
@@ -249,16 +349,23 @@ class ProfileActivity : AppCompatActivity() {
         currentPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         newPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         signOutTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        showPasswordCheckBox.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         (findViewById<View>(R.id.edit_profile_button) as ImageView).setImageResource(R.drawable.baseline_edit_24_gray)
 
-        // Deshabilitar la edición de los campos según el estado actual
-        barNameTxtView.isEnabled = false
-        addressEditText.isEnabled = false
-        phoneEditText.isEnabled = false
-
-        // Ocultar campos de contraseña y botón de actualización
-        currentPasswordEditText.visibility = View.GONE
-        newPasswordEditText.visibility = View.GONE
+        // Alternar visibilidad entre EditText y TextView
+        barNameTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        barNameEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        addressTextView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        addressEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        phoneTextView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        phoneEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayoutPhone.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        linearLayoutPhoneEdit.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayout4.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        linearLayout.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        logoImgView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+        linearLayoutCurrentPassword.visibility = View.GONE
+        linearLayoutNewPassword.visibility = View.GONE
 
         // Recargar los datos del perfil
         loadUserProfile()
@@ -278,7 +385,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun showSignOutConfirmationDialog() {
         // Crear el diálogo de confirmación
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Confirmar")
+        builder.setTitle("Estás a punto de cerrar sesión")
         builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
 
         // Botón "Sí": cierra sesión

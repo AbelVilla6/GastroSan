@@ -9,7 +9,7 @@
     <string name="passwd_error_message">La contraseña debe tener al menos 7 caracteres</string>
     <string name="email_error_message">El email introducido no es válido</string>
     <string name="message_wait">Por favor, espera mientras comprobamos tus credenciales</string>
-    <string name="cree_una_cuenta_nueva">CREE UNA CUENTA NUEVA</string>
+    <string name="cree_una_cuenta_nueva">Rellene los campos para crear una nueva cuenta</string>
     <string name="nombre_del_establecimiento">Nombre del Establecimiento</string>
     <string name="crear_cuenta">CREAR CUENTA</string>
     <string name="ya_tiene_una_cuenta">¿Ya tiene una cuenta?</string>
@@ -28,6 +28,7 @@
     <string name="title_activity_camera">CameraActivity</string>
     <string name="supplier_since">Proveedor desde</string>
     <string name="underlined_text"><u>Ver Factura</u></string>
+    <string name="cerrar_sesi_n"><u>Cerrar Sesión</u></string>
 
 
 </resources>

@@ -60,6 +60,7 @@ import java.util.Date
 import java.util.UUID
 import com.bumptech.glide.request.target.Target
 
+
 import com.bumptech.glide.signature.ObjectKey
 
 
@@ -91,6 +92,8 @@ class SupplierActivity : AppCompatActivity() {
     private var isDialogShown: Boolean = false
 
     private lateinit var profileIcon: ImageView
+    private var userEmail: String? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,13 +124,21 @@ class SupplierActivity : AppCompatActivity() {
             loadSupplierDetails(supplierId)
         }
 
+        // Obtener el correo electrónico del usuario actual desde FirebaseAuth
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        userEmail = currentUser?.email
+        println("Email en SupplierActivity: $userEmail")
+
         addSupplier.setOnClickListener {
             val intent = Intent(this@SupplierActivity, MenuActivity::class.java)
             intent.putExtra("navigateToCameraFragment", true)
             startActivity(intent)
         }
         profileIcon.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
+            // Iniciar ProfileActivity pasando el correo electrónico del usuario
+            val intent = Intent(this, ProfileActivity::class.java).apply {
+                putExtra("email", userEmail)
+            }
             startActivity(intent)
         }
 
@@ -597,8 +608,10 @@ class SupplierActivity : AppCompatActivity() {
                     val contactPhone = dataSnapshot.child("contactPhone").getValue(String::class.java)
                     val registrationDate = dataSnapshot.child("registrationDate").getValue(String::class.java)
 
-                    originalLogoUri = Uri.parse(supplierLogoUrl) // Guarda el URI como global
-                    loadImageIntoView(supplierLogoUrl)
+                    supplierLogoUrl?.let {
+                        originalLogoUri = Uri.parse(it) // Guarda el URI como global
+                        loadImageIntoView(it)
+                    }
 
                     val textViewSupplierName = findViewById<TextView>(R.id.textViewSupplierName)
                     textViewSupplierName.text = supplierName
@@ -636,11 +649,11 @@ class SupplierActivity : AppCompatActivity() {
                     }
                     val textViewEmpty = findViewById<TextView>(R.id.textViewEmpty)
 
-                    if(invoices.isEmpty()){
+                    if (invoices.isEmpty()) {
                         gridView.visibility = View.GONE
                         textViewEmpty.visibility = View.VISIBLE
                         deleteSupplier.visibility = View.GONE
-                    }else{
+                    } else {
                         textViewEmpty.visibility = View.GONE
                         gridView.visibility = View.VISIBLE
                         deleteSupplier.visibility = View.VISIBLE
@@ -663,6 +676,7 @@ class SupplierActivity : AppCompatActivity() {
         })
     }
 
+
     private fun loadImageIntoView(imageUrl: String?) {
         imageUrl?.let {
             Glide.with(this)
@@ -674,7 +688,7 @@ class SupplierActivity : AppCompatActivity() {
                 .into(imageViewLogo)
 
             imageViewLogo.tag = Uri.parse(imageUrl)  // Guarda el URI en el tag del ImageView
-        }
+        } ?: imageViewLogo.setImageResource(R.drawable.default_logo)
     }
 
     private fun loadLogo(imageUrl: String?) {
@@ -705,6 +719,10 @@ class SupplierActivity : AppCompatActivity() {
                     }
                 })
                 .into(imageViewLogo)
+        } ?: run {
+            imageViewLogo.setImageResource(R.drawable.default_logo)
+            lottieAnimationView.cancelAnimation()
+            lottieAnimationView.visibility = View.GONE
         }
     }
 

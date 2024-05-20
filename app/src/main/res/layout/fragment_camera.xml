@@ -12,15 +12,15 @@
         android:layout_width="350dp"
         android:layout_height="450dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="100dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="70dp"
         android:layout_marginBottom="16dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/btnCamara"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.482"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/imageView"
@@ -30,33 +30,39 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/viewFinder"
         app:layout_constraintEnd_toEndOf="@id/viewFinder"
-        app:layout_constraintHorizontal_bias="0.382"
         app:layout_constraintStart_toStartOf="@id/viewFinder"
-        app:layout_constraintTop_toTopOf="@id/viewFinder"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="@id/viewFinder" />
+
 
     <Button
         android:id="@+id/btnCamara"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:background="@drawable/button_background"
         android:text="Tomar Foto"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnGaleria"
+        app:layout_constraintStart_toEndOf="@id/btnCamara"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.749" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintVertical_bias="0.807" />
 
     <Button
         android:id="@+id/btnGaleria"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="45dp"
+        android:background="@drawable/button_background"
         android:text="Subir Foto"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCamara"
-        app:layout_constraintVertical_bias="0.121" />
+        app:layout_constraintEnd_toStartOf="@id/btnGaleria"
+        app:layout_constraintStart_toEndOf="@id/btnCamara"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintVertical_bias="0.807" />
 
     <TextView
         android:id="@+id/textSelectProvider"
@@ -86,35 +92,45 @@
         app:layout_constraintTop_toBottomOf="@id/textSelectProvider"/>
 
     <Button
-        android:id="@+id/btnSiguiente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SIGUIENTE"
+        android:id="@+id/btnRotate"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="50dp"
+        android:text="Rotar"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCamara"
-         />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnSiguiente"
+        app:layout_constraintStart_toEndOf="@id/btnRotate"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintVertical_bias="0.807"/>
 
     <Button
-        android:id="@+id/btnGuardar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GUARDAR"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="8dp"
+        android:id="@+id/btnSiguiente"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="45dp"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:text="SIGUIENTE"
         android:visibility="gone"
-        app:layout_constraintStart_toEndOf="@+id/btnAddSupplier"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/listViewProviders"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnSiguiente"
+        app:layout_constraintStart_toEndOf="@id/btnRotate"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintVertical_bias="0.807" />
 
     <Button
         android:id="@+id/btnAddSupplier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
         android:text="AÑADIR PROVEEDOR"
-        android:layout_marginTop="5dp"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@id/btnGuardar"
         app:layout_constraintStart_toStartOf="parent"
@@ -122,16 +138,20 @@
         app:layout_constraintVertical_bias="0.1" />
 
     <Button
-        android:id="@+id/btnRotate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Rotar"
+        android:id="@+id/btnGuardar"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="45dp"
+        android:background="@drawable/button_background"
+        android:textColor="@color/white"
+        android:text="GUARDAR"
+        android:layout_marginEnd="30dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnAddSupplier"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSiguiente"
+        app:layout_constraintTop_toBottomOf="@id/listViewProviders"
         app:layout_constraintVertical_bias="0.1" />
+
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimationView"

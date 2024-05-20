@@ -3,9 +3,12 @@ package com.gastrosan.activities
 import Users
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.hardware.biometrics.BiometricPrompt
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.InputType
 import android.util.Log
@@ -37,7 +40,6 @@ import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var bLogIn: Button
-    private lateinit var vibrator: Vibrator
     private lateinit var inputEmail: EditText
     private lateinit var inputPassword: EditText
     private lateinit var checkBox: CheckBox
@@ -66,9 +68,18 @@ class LoginActivity : AppCompatActivity() {
         }
 
     }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(100)
+        }
+    }
     private fun initializeLoginComponents() {
         bLogIn = findViewById(R.id.button1)
-        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
         inputEmail = findViewById(R.id.editText1)
         inputPassword = findViewById(R.id.editText2)
         checkBox = findViewById(R.id.checkBox)
@@ -93,6 +104,7 @@ class LoginActivity : AppCompatActivity() {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
         bLogIn.setOnClickListener {
+            vibrateButton(this)
             performLogin()
         }
 
@@ -102,9 +114,27 @@ class LoginActivity : AppCompatActivity() {
 
         checkBox.setOnClickListener {
             if (checkBox.isChecked) {
+                // Guardar el estilo de texto actual
+                val typeface = inputPassword.typeface
+                val textSize = inputPassword.textSize
+
+                // Cambiar el tipo de entrada para mostrar la contraseña
                 inputPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+
+                // Restaurar el estilo de texto
+                inputPassword.typeface = typeface
+                inputPassword.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textSize)
             } else {
+                // Guardar el estilo de texto actual
+                val typeface = inputPassword.typeface
+                val textSize = inputPassword.textSize
+
+                // Cambiar el tipo de entrada para ocultar la contraseña
                 inputPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+
+                // Restaurar el estilo de texto
+                inputPassword.typeface = typeface
+                inputPassword.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, textSize)
             }
         }
     }
@@ -207,8 +237,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
-
     private fun checkCredentials(): Boolean {
         val result = false
         val email: String = inputEmail.text.toString()
@@ -267,7 +295,6 @@ class LoginActivity : AppCompatActivity() {
         val hashedBytes = digest.digest(bytes)
         return hashedBytes.joinToString("") { "%02x".format(it) }
     }
-
 
     private fun showError(input: EditText, s: String) {
         input.error = s

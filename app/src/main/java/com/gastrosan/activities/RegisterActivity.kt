@@ -3,9 +3,12 @@ package com.gastrosan.activities
 import Users
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import android.view.View
@@ -57,7 +60,7 @@ class RegisterActivity : AppCompatActivity() {
         vibratorS = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
         bSignIn?.setOnClickListener(View.OnClickListener {
-            vibrator!!.vibrate(100)
+            vibrateButton(this@RegisterActivity)
             if (checkCredentials()) {
                 Toast.makeText(
                     this@RegisterActivity,
@@ -67,6 +70,16 @@ class RegisterActivity : AppCompatActivity() {
                 startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
             }
         })
+    }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(100)
+        }
     }
 
     private fun checkCredentials(): Boolean {

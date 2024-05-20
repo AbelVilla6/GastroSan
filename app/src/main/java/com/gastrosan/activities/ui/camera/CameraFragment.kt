@@ -42,8 +42,11 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import Suppliers
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.TypedValue
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -117,11 +120,13 @@ class CameraFragment : Fragment() {
 
         // Botón para tomar foto
         binding.btnCamara.setOnClickListener {
+            vibrateButton(requireContext())
             requestCameraPermission()  // Llamada al método actualizado
         }
 
         // Botón para abrir la galería
         binding.btnGaleria.setOnClickListener {
+            vibrateButton(requireContext())
             //requestGalleryPermission()  // Llamada al método actualizado
             openGallery()
         }
@@ -135,6 +140,7 @@ class CameraFragment : Fragment() {
         listViewProviders = root.findViewById(R.id.listViewProviders)
 
         rotateButton.setOnClickListener {
+            vibrateButton(requireContext())
             // Aumenta la rotación actual en 90 grados
             currentRotation += 90
             if (currentRotation == 360f) currentRotation = 0f  // Restablecer después de 360 grados
@@ -146,10 +152,21 @@ class CameraFragment : Fragment() {
         startCamera()
 
         btnAddSupplier.setOnClickListener{
+            vibrateButton(requireContext())
             val intent = Intent(requireContext(), AddSupplierActivity::class.java)
             startActivity(intent)
         }
         return root
+    }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(20)
+        }
     }
     private fun showSettingsDialog() {
         AlertDialog.Builder(requireContext())
@@ -361,6 +378,7 @@ class CameraFragment : Fragment() {
             setupProvidersList() // Configurar y mostrar la lista de proveedores
 
             binding.btnSiguiente.setOnClickListener {
+                vibrateButton(requireContext())
                 prepareScreenThree()
             }
 
@@ -378,7 +396,7 @@ class CameraFragment : Fragment() {
                 val layoutParams = binding.imageView.layoutParams as ConstraintLayout.LayoutParams
                 layoutParams.width = convertDpToPixel(200f, requireContext()) // Asumiendo que quieres 100dp de ancho
                 layoutParams.height = convertDpToPixel(200f, requireContext()) // Y 100dp de alto para la miniatura
-                layoutParams.topMargin = convertDpToPixel(80f, requireContext()) // Añadir un margen superior
+                layoutParams.topMargin = convertDpToPixel(20f, requireContext()) // Añadir un margen superior
                 // Actualizar las restricciones para asegurar que la miniatura se muestre correctamente en el layout
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(binding.constraintLayout)
@@ -393,7 +411,7 @@ class CameraFragment : Fragment() {
                 // 90 degrees rotation
                 // Reducir el tamaño del ImageView para que sea una miniatura
                 val layoutParams = binding.imageView.layoutParams as ConstraintLayout.LayoutParams
-                layoutParams.topMargin = convertDpToPixel(20f, requireContext())
+                layoutParams.topMargin = convertDpToPixel(0f, requireContext())
                 layoutParams.width = convertDpToPixel(150f, requireContext())
                 layoutParams.height = convertDpToPixel(250f, requireContext())
                 // Actualizar las restricciones para asegurar que la miniatura se muestre correctamente en el layout
@@ -414,8 +432,8 @@ class CameraFragment : Fragment() {
                 binding.imageView.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     width = newWidth
                     height = newHeight
-                    topMargin = 200
-                    marginStart = 90
+                    topMargin = 0
+                    marginStart = 45
                 }
 
                 // Asegurarnos de que imageView esté en la parte superior del layout
@@ -449,8 +467,8 @@ class CameraFragment : Fragment() {
                 binding.imageView.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     width = newWidth
                     height = newHeight
-                    topMargin = 200  // Ajusta este valor si necesitas mover la imagen más arriba o más abajo
-                    marginStart = 90  // Ajusta según necesites para centrar la imagen horizontalmente
+                    topMargin = 0  // Ajusta este valor si necesitas mover la imagen más arriba o más abajo
+                    marginStart = 0  // Ajusta según necesites para centrar la imagen horizontalmente
                 }
 
                 // Asegurarnos de que imageView esté en la parte superior del layout
@@ -482,6 +500,7 @@ class CameraFragment : Fragment() {
 
         // Configurar la acción del botón "Guardar"
         binding.btnGuardar.setOnClickListener {
+            vibrateButton(requireContext())
             val adapter = listViewProviders.adapter as CustomAdapter
             if (adapter.selectedPosition == -1) {
                 // No hay ningún proveedor seleccionado
@@ -648,6 +667,7 @@ class CameraFragment : Fragment() {
             setupProvidersList()
 
             binding.btnSiguiente.setOnClickListener {
+                vibrateButton(requireContext())
                 prepareScreenThree()
             }
         }

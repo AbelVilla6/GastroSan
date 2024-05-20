@@ -51,7 +51,6 @@ class MenuActivity : AppCompatActivity() {
         binding.navView.setupWithNavController(navController)
 
         findViewById<ImageView>(R.id.profile_icon).setOnClickListener {
-            Toast.makeText(this, "Perfil", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, ProfileActivity::class.java).apply {
                 putExtra("email", userEmail)
             })
@@ -73,10 +72,8 @@ class MenuActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val navController = findNavController(R.id.nav_host_fragment_activity_menu)
-        if (navController.currentDestination?.id == R.id.navigation_home) {
+        if (!navController.navigateUp()) {
             super.onBackPressed()
-        } else {
-            navController.popBackStack(R.id.navigation_home, false)
         }
     }
 }

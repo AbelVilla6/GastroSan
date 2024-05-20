@@ -14,7 +14,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.provider.MediaStore
 import android.app.Activity.RESULT_OK
+import android.content.Context
+import android.os.Build
 import android.os.Environment
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.core.content.FileProvider
 import java.io.IOException
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,12 +74,33 @@ class AddSupplierActivity : AppCompatActivity() {
         }
 
         binding.btnSaveSupplier.setOnClickListener {
+            vibrateButton(this)
             // Verifica si hay una imagen seleccionada, si no, guarda sin imagen
             imageUri?.let {
                 uploadImageToFirebaseStorage(it)
             } ?: run {
                 saveSupplierToDatabase()  // Guarda sin imagen si no hay ninguna seleccionada
             }
+        }
+    }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        if (vibrator == null) {
+            println("Servicio de vibración no disponible")
+            return
+        }
+        if (!vibrator.hasVibrator()) {
+            println("El dispositivo no tiene vibrador")
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+            println("Vibrando API 26+")
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(100)
+            println("Vibrando API menor a 26")
         }
     }
 
