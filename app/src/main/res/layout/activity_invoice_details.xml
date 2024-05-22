@@ -41,7 +41,7 @@
                     android:layout_height="70dp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="8dp"
-                    android:contentDescription="Logo Gastrosan"
+                    android:contentDescription="@string/logo_gastrosan"
                     android:src="@drawable/logo_gastrosan" />
             </FrameLayout>
 
@@ -59,7 +59,7 @@
                     android:layout_height="55dp"
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="12dp"
-                    android:contentDescription="Icono Perfil"
+                    android:contentDescription="@string/icono_perfil"
                     android:onClick="onProfileIconClick"
                     android:padding="12dp"
                     android:background="@drawable/ripple_effect"
@@ -121,11 +121,11 @@
             <!-- Header Row -->
             <TableRow>
 
-                <TextView android:text="Artículo" style="@style/TableHeader" />
-                <TextView android:text="Cantidad" style="@style/TableHeader" />
-                <TextView android:text="Nº Lote" style="@style/TableHeader" />
-                <TextView android:text="PVP" style="@style/TableHeader" />
-                <TextView android:text="Importe" style="@style/TableHeader" />
+                <TextView android:text="@string/art_culo" style="@style/TableHeader" />
+                <TextView android:text="@string/cantidad" style="@style/TableHeader" />
+                <TextView android:text="@string/n_lote" style="@style/TableHeader" />
+                <TextView android:text="@string/pvp" style="@style/TableHeader" />
+                <TextView android:text="@string/importe" style="@style/TableHeader" />
             </TableRow>
         </TableLayout>
     </ScrollView>
@@ -142,7 +142,7 @@
             android:id="@+id/textViewTotal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total: 0,00€"
+            android:text="@string/total_0_00"
             android:textSize="18sp"
             android:visibility="gone"
             android:textStyle="bold|italic"
@@ -154,7 +154,7 @@
             android:id="@+id/empty_table_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Actualmente la tabla de artículos está vacía"
+            android:text="@string/actualmente_la_tabla_de_art_culos_est_vac_a"
             android:visibility="gone"
             android:layout_gravity="center" />
 
@@ -175,7 +175,7 @@
             android:layout_width="120dp"
             android:layout_height="45dp"
             android:background="@drawable/button_background"
-            android:text="Añadir Datos"
+            android:text="@string/a_adir_datos"
             android:textColor="@color/white" />
 
         <Button
@@ -185,7 +185,7 @@
             android:layout_marginStart="10dp"
             android:background="@drawable/button_background"
             android:textColor="@color/white"
-            android:text="Descargar PDF"
+            android:text="@string/descargar_pdf"
             />
         <Button
             android:id="@+id/delete_rows_button"
@@ -194,7 +194,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_background"
             android:textColor="@color/white"
-            android:text="Eliminar Filas"
+            android:text="@string/eliminar_filas"
             android:visibility="gone" />
         <Button
             android:id="@+id/delete_rows_selected_button"
@@ -203,7 +203,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_background"
             android:textColor="@color/white"
-            android:text="Confirmar Eliminación"
+            android:text="@string/confirmar_eliminaci_n"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -212,7 +212,7 @@
         android:id="@+id/buttonDeleteInvoice"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:text="Eliminar Factura"
+        android:text="@string/eliminar_factura"
         android:background="@drawable/button_background3"
         android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/linearLayoutButtons"

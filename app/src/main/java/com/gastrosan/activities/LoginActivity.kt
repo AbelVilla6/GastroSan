@@ -88,8 +88,8 @@ class LoginActivity : AppCompatActivity() {
 
         // Inicializar el ProgressDialog con la configuración adecuada
         mLoadingBar = ProgressDialog(this).apply {
-            setTitle("Inicio de sesión")
-            setMessage("Por favor, espere mientras verificamos sus credenciales...")
+            setTitle(getString(R.string.inicio_de_sesi_n))
+            setMessage(getString(R.string.por_favor_espere_mientras_verificamos_sus_credenciales))
             setCanceledOnTouchOutside(false)
         }
         setupSignInMethods()
@@ -143,10 +143,12 @@ class LoginActivity : AppCompatActivity() {
         val password = inputPassword.text.toString()
 
         if (email.isEmpty() || !email.contains("@")) {
-            showError(inputEmail, "Por favor, introduzca un correo electrónico válido.")
+            showError(inputEmail,
+                getString(R.string.por_favor_introduzca_un_correo_electr_nico_v_lido))
             return
         } else if (password.isEmpty() || password.length < 6) {
-            showError(inputPassword, "La contraseña debe tener al menos 6 caracteres.")
+            showError(inputPassword,
+                getString(R.string.la_contrase_a_debe_tener_al_menos_6_caracteres))
             return
         }
 
@@ -157,7 +159,8 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 goToMenuActivity()
             } else {
-                Toast.makeText(this, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.email_o_contrase_a_incorrectos), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -176,7 +179,8 @@ class LoginActivity : AppCompatActivity() {
                 }
                 goToMenuActivity()
             } else {
-                Toast.makeText(this, "Ha ocurrido un error en nuestros servidores", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.ha_ocurrido_un_error_en_nuestros_servidores), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -250,7 +254,7 @@ class LoginActivity : AppCompatActivity() {
             showError(inputPassword, getString(R.string.passwd_error_message))
             result
         } else {
-            mLoadingBar?.setTitle("Inicio de sesión")
+            mLoadingBar?.setTitle(getString(R.string.inicio_de_sesi_n2))
             mLoadingBar?.setMessage(getString(R.string.message_wait))
             mLoadingBar?.setCanceledOnTouchOutside(false)
             mLoadingBar?.show()

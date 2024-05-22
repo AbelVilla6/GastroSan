@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/profile"
-        android:title="Perfil"
+        android:title="@string/perfil5"
         android:icon="@drawable/profile_icon"
         app:showAsAction="always"/>
 </menu>

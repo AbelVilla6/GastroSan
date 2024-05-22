@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="180dp"
-        android:text="¡Bienvenido a GastroSan!"
+        android:text="@string/bienvenido_a_gastrosan"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="italic"
@@ -53,7 +53,7 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="Proveedor"
+                android:contentDescription="@string/proveedor"
                 android:scaleType="fitCenter"
                 android:src="@drawable/proveedores" />
 
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="5dp"
-                android:text="Proveedores"
+                android:text="@string/proveedores"
                 android:textColor="@color/white"
                 android:textSize="20sp" />
         </LinearLayout>
@@ -83,7 +83,7 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="Perfil"
+                android:contentDescription="@string/perfil2"
                 android:scaleType="fitCenter"
                 android:src="@drawable/profile_icon" />
 
@@ -91,7 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Perfil"
+                android:text="@string/perfil3"
                 android:layout_marginTop="5dp"
                 android:textColor="@color/white"
                 android:textSize="20sp" />
@@ -112,7 +112,7 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="Factura"
+                android:contentDescription="@string/factura"
                 android:scaleType="fitCenter"
                 android:src="@drawable/facturas" />
 
@@ -120,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Añadir Factura"
+                android:text="@string/a_adir_factura"
                 android:layout_marginTop="5dp"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
@@ -142,7 +142,7 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="Añadir Proveedor"
+                android:contentDescription="@string/a_adir_proveedor3"
                 android:scaleType="fitCenter"
                 android:src="@drawable/add_supplier" />
 
@@ -151,12 +151,10 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="5dp"
-                android:text="Añadir Proveedor"
+                android:text="@string/a_adir_proveedor4"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
         </LinearLayout>
-
-
 
     </GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -83,7 +83,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     private var invoiceId: String? = null
     private var deleteDialog: AlertDialog? = null
 
-    private val headerTitles = arrayOf("Nombre", "Cantidad", "N° Lote", "PVP", "Importe")
+    private val headerTitles = intArrayOf(R.string.nombre, R.string.cantidad, R.string.n_lote, R.string.pvp, R.string.importe)
     private val headerWeights = arrayOf(2.75f, 1.75f, 2.0f, 1.5f, 2.0f) // Pesos para el layout de las columnas
 
     private var supplierLogoUrl: String? = null
@@ -143,7 +143,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             if (supplierLogoUrl != null) {
                 createPdfWithLogo()
             } else {
-                Toast.makeText(this, "Esperando la carga del logo del proveedor...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.esperando_la_carga_del_logo_del_proveedor), Toast.LENGTH_SHORT).show()
                 // Podrías intentar recargar el logo aquí si no se ha cargado correctamente antes
                 supplierId?.let { loadSupplierLogo(it) }
             }
@@ -238,19 +239,21 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("StringFormatMatches")
     private fun showDeleteConfirmationDialog() {
         val selectedRowsCount = getSelectedRowsCount()
         if (selectedRowsCount > 0) {
             AlertDialog.Builder(this)
-                .setTitle("Confirmar eliminación")
-                .setMessage("¿Estás seguro de que deseas eliminar $selectedRowsCount fila(s)?")
-                .setPositiveButton("Sí") { _, _ ->
+                .setTitle(getString(R.string.confirmar_eliminaci_n2))
+                .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_fila_s,selectedRowsCount))
+                .setPositiveButton(getString(R.string.si)) { _, _ ->
                     deleteSelectedRows()
                 }
-                .setNegativeButton("No", null)
+                .setNegativeButton(getString(R.string.no), null)
                 .show()
         } else {
-            Toast.makeText(this, "Por favor, selecciona al menos una fila para eliminar.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.por_favor_selecciona_al_menos_una_fila_para_eliminar), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -335,24 +338,26 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             val userUid = currentUser.uid
             val supplierId = intent.getStringExtra("supplierId") ?: return
             AlertDialog.Builder(this)
-                .setTitle("Confirmar eliminación")
-                .setMessage("¿Estás seguro de que deseas eliminar esta factura?")
-                .setPositiveButton("Eliminar") { _, _ ->
+                .setTitle(getString(R.string.confirmar_eliminaci_n4))
+                .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_esta_factura))
+                .setPositiveButton(getString(R.string.eliminar3)) { _, _ ->
                     val invoiceRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
                         .getReference("users/$userUid/suppliers/$supplierId/invoices/$invoiceId")
                     invoiceRef.removeValue().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(this, "Factura eliminada correctamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this,
+                                getString(R.string.factura_eliminada_correctamente), Toast.LENGTH_SHORT).show()
                             finish()
                         } else {
-                            Toast.makeText(this, "Error al eliminar la factura", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this,
+                                getString(R.string.error_al_eliminar_la_factura), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.cancelar), null)
                 .show()
         } ?: run {
-            Toast.makeText(this, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.usuario_no_autenticado), Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
@@ -395,9 +400,10 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
     private fun showAddDataRowDialog() {
         AlertDialog.Builder(this)
-            .setTitle("¿Qué deseas añadir?")
-            .setNegativeButton("Cancelar", null)
-            .setItems(arrayOf("Artículos", "Costes Extras (IVA, Otros gastos...)")) { dialog, which ->
+            .setTitle(getString(R.string.qu_deseas_a_adir))
+            .setNegativeButton(getString(R.string.cancelar), null)
+            .setItems(arrayOf(getString(R.string.art_culos),
+                getString(R.string.costes_extras_iva_otros_gastos))) { dialog, which ->
                 when (which) {
                     0 -> showArticleDialog()
                     1 -> showExtraCostDialog()
@@ -414,8 +420,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("Añadir", null) // Set to null. We override the onClick below.
-            .setNegativeButton("Cancelar", null)
+            .setPositiveButton(getString(R.string.a_adir), null) // Set to null. We override the onClick below.
+            .setNegativeButton(getString(R.string.cancelar), null)
             .create()
 
         dialog.setOnShowListener {
@@ -427,15 +433,15 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
                 var isValid = true
                 if (name.isBlank()) {
-                    nameInput.error = "Campo obligatorio"
+                    nameInput.error = getString(R.string.campo_obligatorio)
                     isValid = false
                 }
                 if (quantity == null || quantity <= 0) {
-                    quantityInput.error = "Cantidad inválida"
+                    quantityInput.error = getString(R.string.cantidad_inv_lida)
                     isValid = false
                 }
                 if (pvpDouble == null) {
-                    pvpInput.error = "Formato de precio inválido"
+                    pvpInput.error = getString(R.string.formato_de_precio_inv_lido)
                     isValid = false
                 }
 
@@ -468,8 +474,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("Añadir", null) // Set to null. We override the onClick below.
-            .setNegativeButton("Cancelar", null)
+            .setPositiveButton(getString(R.string.a_adir2), null) // Set to null. We override the onClick below.
+            .setNegativeButton(getString(R.string.cancelar), null)
             .create()
 
         dialog.setOnShowListener {
@@ -480,11 +486,12 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                 var isValid = true
 
                 if (name.isBlank()) {
-                    nameInput.error = "Campo obligatorio"
+                    nameInput.error = getString(R.string.campo_obligatorio2)
                     isValid = false
                 }
                 if (importe == null || importe <= 0) {
-                    importInput.error = "El importe debe ser un número válido y mayor que 0"
+                    importInput.error =
+                        getString(R.string.el_importe_debe_ser_un_n_mero_v_lido_y_mayor_que_0)
                     isValid = false
                 }
 
@@ -670,7 +677,8 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     println("Failed to parse importe '$importeText' at row $i: ${e.message}")
                 }
             }
-            findViewById<TextView>(R.id.textViewTotal).text = "Total: ${String.format("%.2f", total)}€"
+            findViewById<TextView>(R.id.textViewTotal).text =
+                getString(R.string.total, String.format("%.2f", total))
             updateTotalCost(invoiceId!!, total)  // Actualiza el total en Firebase
         } else{
             textViewTotal.text = "Total: €0.00"
@@ -691,8 +699,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun createHeaderRow(titles: Array<String>, weights: Array<Float>, includeCheckbox: Boolean = false): TableRow {
+    private fun createHeaderRow(titles: IntArray, weights: Array<Float>, includeCheckbox: Boolean = false): TableRow {
         val headerRow = TableRow(this).apply {
             layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)
         }
@@ -709,9 +716,9 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         }
 
         // Celdas del encabezado
-        titles.forEachIndexed { index, title ->
+        titles.forEachIndexed { index, titleResId ->
             headerRow.addView(TextView(this).apply {
-                text = title
+                text = getString(titleResId)
                 setTextAppearance(this@InvoiceDetailsActivity, R.style.TableHeader)
                 layoutParams = TableRow.LayoutParams(0, TableRow.LayoutParams.MATCH_PARENT, weights[index])
                 gravity = Gravity.CENTER
@@ -721,6 +728,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         return headerRow
     }
+
 
 
     private fun createCell(text: String, weight: Float, isExtraCost: Boolean = false): View {
@@ -781,7 +789,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             row.tag = mapOf("firebaseKey" to newItemRef.key, "item" to true)
             updateTotal()  // Recalcular y actualizar el total después de añadir
         }.addOnFailureListener {
-            Toast.makeText(this, "Error al añadir artículo.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_al_a_adir_art_culo), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -800,7 +808,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             row.tag = mapOf("firebaseKey" to newItemRef.key, "isExtraCost" to true)
             updateTotal()  // Recalcular y actualizar el total después de añadir
         }.addOnFailureListener {
-            Toast.makeText(this, "Error al añadir coste extra.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_al_a_adir_coste_extra), Toast.LENGTH_SHORT).show()
         }
     }
     @SuppressLint("RestrictedApi")
@@ -818,10 +826,12 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
         itemRef.removeValue()
             .addOnSuccessListener {
-                Toast.makeText(this, "Elemento eliminado correctamente.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.elemento_eliminado_correctamente), Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error al eliminar elemento.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.error_al_eliminar_elemento), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -906,7 +916,12 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     } ?: run {
                         supplierDetailsTable.addCell(PdfPCell().apply { border = Rectangle.NO_BORDER })
                     }
-                    val textCell = PdfPCell(Paragraph("Distribuidor: ${textViewSupplierName.text}\nFactura subida a GastroSan el ${textViewDate.text}")).apply {
+                    val textCell = PdfPCell(Paragraph(
+                        getString(
+                            R.string.distribuidor_factura_subida_a_gastrosan_el,
+                            textViewSupplierName.text,
+                            textViewDate.text
+                        ))).apply {
                         border = Rectangle.NO_BORDER
                         verticalAlignment = Element.ALIGN_MIDDLE
                     }
@@ -928,7 +943,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
                     // Agregar tabla
                     val pdfTable = PdfPTable(5)
-                    val cellHeaders = arrayOf("Artículo", "Cantidad", "Nº Lote", "PVP", "Importe")
+                    val cellHeaders = arrayOf(getString(R.string.art_culo), getString(R.string.cantidad), getString(R.string.n_lote), getString(R.string.pvp), getString(R.string.importe))
                     cellHeaders.forEach { header ->
                         pdfTable.addCell(header)
                     }
@@ -961,12 +976,14 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     writer.pageEvent = FooterEvent()
 
                     doc.close()
-                    Toast.makeText(this, "PDF guardado en Downloads", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,
+                        getString(R.string.pdf_guardado_en_downloads), Toast.LENGTH_LONG).show()
                 }
-            } ?: throw IOException("No se pudo crear el archivo PDF")
+            } ?: throw IOException(getString(R.string.no_se_pudo_crear_el_archivo_pdf))
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "Error al crear PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.error_al_crear_pdf, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1003,12 +1020,14 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                     supplierLogoUrl = snapshot.value as String?
                     // Ahora puedes llamar a createPdf() si es necesario en este punto
                 } else {
-                    Toast.makeText(applicationContext, "Logo URL no encontrado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,
+                        getString(R.string.logo_url_no_encontrado), Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(applicationContext, "Error al cargar el logo: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,
+                    getString(R.string.error_al_cargar_el_logo, databaseError.message), Toast.LENGTH_SHORT).show()
             }
         })
     }

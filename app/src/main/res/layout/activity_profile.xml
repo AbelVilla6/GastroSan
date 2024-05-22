@@ -27,7 +27,7 @@
             android:layout_marginTop="35dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/lobster"
-            android:text="Nombre Restaurante"
+            android:text="@string/nombre_restaurante"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textIsSelectable="true"
@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Nombre Restaurante"
+            android:text="@string/nombre_restaurante2"
             android:gravity="center"
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
@@ -109,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Nombre Restaurante"
+            android:text="@string/nombre_restaurante3"
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
             android:textColor="@color/Primary"
@@ -126,8 +126,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="C/Ejemplo 47, 1º"
-            android:hint="Dirección del restaurante"
+            android:text="@string/c_ejemplo_47_1"
+            android:hint="@string/direcci_n_del_restaurante"
             android:gravity="center"
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
@@ -145,9 +145,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="C/Ejemplo 47, 1º"
+            android:text="@string/c_ejemplo_47_12"
             android:gravity="center"
-            android:hint="Dirección del restaurante"
+            android:hint="@string/direcci_n_del_restaurante2"
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
             android:textColor="@color/PrimaryVariant"
@@ -189,7 +189,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
-                android:text="Correo Electrónico"
+                android:text="@string/correo_electr_nico"
                 android:textIsSelectable="true"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -224,7 +224,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
-                android:text="Correo Electrónico"
+                android:text="@string/correo_electr_nico2"
                 android:textIsSelectable="true"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -260,9 +260,9 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="184dp"
-                android:hint="Nº de teléfono"
+                android:hint="@string/n_de_tel_fono"
                 android:inputType="phone"
-                android:text="+34 000 00 00 00 "
+                android:text="@string/_34_000_00_00_00"
                 android:textSize="18sp"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -302,8 +302,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="184dp"
                 android:inputType="phone"
-                android:text="+34 000 00 00 00 "
-                android:hint="Nº de teléfono"
+                android:text="@string/_34_000_00_00_002"
+                android:hint="@string/n_de_tel_fono2"
                 android:textIsSelectable="true"
                 android:textSize="18sp"
                 android:visibility="gone"
@@ -342,7 +342,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:hint="Contraseña actual"
+                android:hint="@string/contrase_a_actual"
                 android:inputType="textPassword"
                 android:layout_weight="1"/>
 
@@ -377,7 +377,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:hint="Nueva contraseña"
+                android:hint="@string/nueva_contrase_a"
                 android:inputType="textPassword"
                 android:layout_weight="1"/>
 
@@ -388,7 +388,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Mostrar Contraseña(s)"
+            android:text="@string/mostrar_contrase_a_s"
             app:layout_constraintTop_toBottomOf="@id/linearLayoutNewPassword"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -398,7 +398,28 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+
     <!-- Confirm Button and Sign Out -->
+
+    <Button
+        android:id="@+id/language_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/button_background"
+        android:drawableLeft="@drawable/spain_flag"
+        android:drawablePadding="8dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:padding="12dp"
+        android:text="Idioma"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintVertical_bias="0.366" />
+
     <LinearLayout
         android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
@@ -410,7 +431,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
-        app:layout_constraintVertical_bias="0.227">
+        app:layout_constraintVertical_bias="0.406">
 
         <Button
             android:id="@+id/confirm_button"
@@ -423,7 +444,7 @@
             android:paddingTop="10dp"
             android:paddingEnd="20dp"
             android:paddingBottom="10dp"
-            android:text="Confirmar cambios"
+            android:text="@string/confirmar_cambios2"
             android:textColor="#FFFFFF"
             android:visibility="gone"
             tools:layout_editor_absoluteX="113dp"
@@ -455,6 +476,8 @@
         android:src="@drawable/logo_gastrosan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

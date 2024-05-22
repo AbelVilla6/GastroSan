@@ -20,7 +20,7 @@
         android:layout_gravity="end"
         android:padding="5dp"
         android:src="@drawable/selector_close_button"
-        android:contentDescription="Cerrar Ventana" />
+        android:contentDescription="@string/cerrar_ventana2" />
 
 
 </FrameLayout>

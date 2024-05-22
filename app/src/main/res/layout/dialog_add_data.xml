@@ -9,14 +9,14 @@
         android:id="@+id/input_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre"
+        android:hint="@string/nombre"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/input_quantity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Cantidad"
+        android:hint="@string/cantidad2"
         android:inputType="number"
         android:maxLength="20"/>
 
@@ -24,14 +24,14 @@
         android:id="@+id/input_lote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nº Lote"
+        android:hint="@string/n_lote2"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/input_pvp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="PVP"
+        android:hint="@string/pvp2"
         android:inputType="numberDecimal"/>
 
 

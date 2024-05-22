@@ -42,7 +42,7 @@
                     android:layout_height="70dp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="8dp"
-                    android:contentDescription="Logo Gastrosan"
+                    android:contentDescription="@string/logo_gastrosan4"
                     android:src="@drawable/logo_gastrosan" />
             </FrameLayout>
 
@@ -60,7 +60,7 @@
                     android:layout_height="55dp"
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="12dp"
-                    android:contentDescription="Icono Perfil"
+                    android:contentDescription="@string/icono_perfil3"
                     android:onClick="onProfileIconClick"
                     android:padding="12dp"
                     android:background="@drawable/ripple_effect"
@@ -113,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginStart="22dp"
-                        android:text="Nombre del Proveedor"
+                        android:text="@string/nombre_del_proveedor2"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textStyle="bold" />
 
@@ -124,7 +124,7 @@
                         android:layout_gravity="center"
                         android:layout_marginStart="22dp"
                         android:inputType="textPersonName"
-                        android:text="Nombre del Proveedor"
+                        android:text="@string/nombre_del_proveedor3"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textStyle="bold"
                         android:visibility="gone" />
@@ -144,7 +144,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Proveedor desde..."
+                    android:text="@string/proveedor_desde"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="italic" />
@@ -164,7 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Nombre de contacto : "
+                android:text="@string/nombre_de_contacto"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -172,7 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Nombre de contacto : "
+                android:text="@string/nombre_de_contacto2"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
 
@@ -188,14 +188,14 @@
                 android:id="@+id/textViewContactPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teléfono de contacto"
+                android:text="@string/tel_fono_de_contacto2"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/editTextViewContactPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teléfono de contacto"
+                android:text="@string/tel_fono_de_contacto3"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
 
@@ -222,7 +222,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Este proveedor no tiene ninguna factura almacenada."
+            android:text="@string/este_proveedor_no_tiene_ninguna_factura_almacenada"
             android:textColor="@color/black"
             android:visibility="gone" />
 
@@ -259,7 +259,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/button_background"
                 android:textColor="@color/white"
-                android:text="Cancelar"
+                android:text="@string/cancelar"
                 android:visibility="gone" />
 
             <Button
@@ -271,7 +271,7 @@
                 android:layout_marginStart="40dp"
                 android:background="@drawable/button_background"
                 android:textColor="@color/white"
-                android:text="Eliminar"
+                android:text="@string/eliminar"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -284,7 +284,7 @@
             android:textColor="@color/white"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
-            android:text="Eliminar Proveedor" />
+            android:text="@string/eliminar_proveedor" />
 
         <Button
             android:id="@+id/buttonConfirmChanges"
@@ -295,7 +295,7 @@
             android:textColor="@color/white"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="10dp"
-            android:text="Confirmar Cambios"
+            android:text="@string/confirmar_cambios4"
             android:visibility="gone" />
 
     </LinearLayout>

@@ -173,13 +173,13 @@ class CameraFragment : Fragment() {
     }
     private fun showSettingsDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Permisos Necesarios")
-            .setMessage("Esta aplicación necesita permisos para continuar. Puedes otorgarlos en Ajustes.")
-            .setPositiveButton("Ir a Ajustes") { dialog, _ ->
+            .setTitle(getString(R.string.permisos_necesarios))
+            .setMessage(getString(R.string.esta_aplicaci_n_necesita_permisos_para_continuar_puedes_otorgarlos_en_ajustes))
+            .setPositiveButton(getString(R.string.ir_a_ajustes)) { dialog, _ ->
                 dialog.cancel()
                 openAppSettings()
             }
-            .setNegativeButton("Cancelar") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancelar)) { dialog, _ ->
                 dialog.cancel()
             }
             .create()
@@ -194,9 +194,11 @@ class CameraFragment : Fragment() {
                 adapter.selectedPosition = position
                 listViewProviders.setItemChecked(position, true)
                 adapter.notifyDataSetChanged()
-                Toast.makeText(context, "Proveedor seleccionado: ${adapter.getItem(position)?.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.proveedor_seleccionado, adapter.getItem(position)?.name), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Por favor, marca el checkbox correspondiente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.por_favor_marca_el_checkbox_correspondiente), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -255,7 +257,8 @@ class CameraFragment : Fragment() {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
             } catch (exc: Exception) {
-                Toast.makeText(context, "Failed to start camera: ${exc.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.failed_to_start_camera, exc.message), Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -333,7 +336,8 @@ class CameraFragment : Fragment() {
                     createImageFile()
                 } catch (ex: IOException) {
                     // Error ocurrido mientras se creaba el archivo
-                    Toast.makeText(requireContext(), "Error al crear el archivo de imagen: ${ex.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),
+                        getString(R.string.error_al_crear_el_archivo_de_imagen, ex.message), Toast.LENGTH_SHORT).show()
                     null
                 }
                 // Continúa solo si el archivo fue creado exitosamente
@@ -507,7 +511,8 @@ class CameraFragment : Fragment() {
             val adapter = listViewProviders.adapter as CustomAdapter
             if (adapter.selectedPosition == -1) {
                 // No hay ningún proveedor seleccionado
-                Toast.makeText(context, "Debes seleccionar un proveedor o añadir uno nuevo", Toast.LENGTH_LONG).show()
+                Toast.makeText(context,
+                    getString(R.string.debes_seleccionar_un_proveedor_o_a_adir_uno_nuevo), Toast.LENGTH_LONG).show()
             } else {
                 // Hay un proveedor seleccionado
                 val selectedSupplier = adapter.getItem(adapter.selectedPosition)
@@ -568,7 +573,8 @@ class CameraFragment : Fragment() {
             }
         }.addOnFailureListener { exception ->
             showLoadingScreen(false, false)  // Error, muestra la cruz roja
-            Toast.makeText(context, "Error al subir imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                getString(R.string.error_al_subir_imagen, exception.message), Toast.LENGTH_SHORT).show()
         }
     }
     fun showLoadingScreen(show: Boolean, success: Boolean? = null) {
@@ -580,7 +586,7 @@ class CameraFragment : Fragment() {
                 binding.btnAddSupplier.visibility = View.GONE
                 binding.lottieAnimationView.visibility = View.VISIBLE
 
-                binding.statusMessage.text = "Guardando imagen..."
+                binding.statusMessage.text = getString(R.string.guardando_imagen)
                 binding.statusMessage.visibility = View.VISIBLE
                 binding.lottieAnimationView.setAnimation(R.raw.loading_animation)  // Asume que tienes una animación de carga
 
@@ -595,10 +601,12 @@ class CameraFragment : Fragment() {
 
                 if (success == true) {
                     binding.lottieAnimationView.setAnimation(R.raw.success_animation)
-                    binding.statusMessage.text = "La imagen se ha guardado correctamente."
+                    binding.statusMessage.text =
+                        getString(R.string.la_imagen_se_ha_guardado_correctamente)
                 } else {
                     binding.lottieAnimationView.setAnimation(R.raw.error_animation)
-                    binding.statusMessage.text = "La imagen no ha podido guardarse, por favor intentalo de nuevo."
+                    binding.statusMessage.text =
+                        getString(R.string.la_imagen_no_ha_podido_guardarse_por_favor_intentalo_de_nuevo)
                 }
                 binding.lottieAnimationView.playAnimation()
                 binding.statusMessage.visibility = View.VISIBLE

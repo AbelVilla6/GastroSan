@@ -9,14 +9,14 @@
         android:id="@+id/input_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre"
+        android:hint="@string/nombre2"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/input_importe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Importe"
+        android:hint="@string/importe2"
         android:inputType="numberDecimal"/>
 
 </LinearLayout>

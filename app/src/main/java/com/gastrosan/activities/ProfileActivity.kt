@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,7 @@ import java.util.*
 import android.os.Vibrator
 import android.os.VibrationEffect
 import android.text.InputType
+import android.view.ViewGroup
 
 
 class ProfileActivity : AppCompatActivity() {
@@ -67,20 +69,36 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var linearLayoutNewPassword: LinearLayout
     private lateinit var showPasswordCheckBox: CheckBox
 
+    private lateinit var languageButton: Button
+    private val languages = arrayOf(R.string.español, R.string.english, R.string.català, R.string.euskara)
+    private val languageCodes = arrayOf("es", "en", "ca", "eu")
+    private val languageFlags = intArrayOf(
+        R.drawable.spain_flag, // Reemplaza con tus recursos de bandera
+        R.drawable.uk_flag,
+        R.drawable.catalonia_flag,
+        R.drawable.basque_country_flag
+    )
+
     companion object {
         private const val CAMERA_REQUEST_CODE = 1002
         private const val PERMISSIONS_REQUEST_CODE = 1001
         private const val GALLERY_REQUEST_CODE = 1003
+        private const val PREFS_NAME = "Settings"
+        private const val PREF_LANGUAGE = "AppLanguage"
     }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadLocale() // Cargar el idioma seleccionado antes de configurar el contenido
         setContentView(R.layout.activity_profile)
 
         // Recibir datos de la pantalla de inicio de sesión
         val intent = intent
         email = intent.getStringExtra("email")
+        if (email == null) {
+            email = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("email", null)
+        }
         println("Email en Perfil: $email")
 
         // Referenciar las vistas
@@ -108,6 +126,15 @@ class ProfileActivity : AppCompatActivity() {
         showPasswordCheckBox = findViewById(R.id.show_password_checkbox)
         logoImgView = findViewById(R.id.logoImageView)
 
+        updateLanguageButton() // Actualiza el botón de idioma
+
+        // Referenciar las vistas
+        languageButton = findViewById(R.id.language_button)
+
+        languageButton.setOnClickListener {
+            showLanguageDialog()
+        }
+
         loadUserProfile()
 
         userImageView.setOnClickListener {
@@ -119,11 +146,141 @@ class ProfileActivity : AppCompatActivity() {
             togglePasswordVisibility(isChecked)
         }
     }
+    private fun showLanguageDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.selecciona_el_idioma)
 
+        // Obtener el idioma actual de SharedPreferences
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentLanguageCode = prefs.getString(PREF_LANGUAGE, "es") ?: "es"
+        val currentIndex = languageCodes.indexOf(currentLanguageCode)
+        var selectedPosition = currentIndex
+        var selectedLanguageCode: String? = languageCodes[currentIndex]
+
+        // Convertir los recursos de cadenas en cadenas reales
+        val languageNames = languages.map { getString(it) }.toTypedArray()
+
+        // Crear un adaptador para el ListView del diálogo
+        val languageAdapter = object : ArrayAdapter<String>(this, R.layout.dialog_language_item, languageNames) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = convertView ?: layoutInflater.inflate(R.layout.dialog_language_item, parent, false)
+                val imageView = view.findViewById<ImageView>(R.id.imageViewFlag)
+                val textView = view.findViewById<TextView>(R.id.textViewLanguage)
+                val radioButton = view.findViewById<RadioButton>(R.id.radioButton)
+
+                imageView.setImageResource(languageFlags[position])
+                textView.text = getItem(position)
+                radioButton.isChecked = position == selectedPosition
+
+                view.setOnClickListener {
+                    selectedPosition = position
+                    selectedLanguageCode = languageCodes[position]
+                    notifyDataSetChanged()
+                }
+
+                radioButton.setOnClickListener {
+                    selectedPosition = position
+                    selectedLanguageCode = languageCodes[position]
+                    notifyDataSetChanged()
+                }
+
+                return view
+            }
+        }
+
+        // Crear el ListView y configurarlo con el adaptador
+        val listView = ListView(this)
+        listView.adapter = languageAdapter
+
+        builder.setView(listView)
+        builder.setPositiveButton(R.string.confirmar_cambios4) { _, _ ->
+            selectedLanguageCode?.let {
+                setLocale(it)
+                Toast.makeText(this,
+                    getString(R.string.idioma_seleccionado, languageNames[selectedPosition]), Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton(R.string.cancelar) { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.create().show()
+    }
+
+
+
+    private fun setLocale(languageCode: String) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentLanguage = prefs.getString(PREF_LANGUAGE, "es")
+
+        if (currentLanguage != languageCode) {
+            println("setLocale called with languageCode: $languageCode")
+            val locale = Locale(languageCode)
+            Locale.setDefault(locale)
+            val config = Configuration()
+            config.setLocale(locale)
+            resources.updateConfiguration(config, resources.displayMetrics)
+
+            // Guardar el idioma seleccionado en SharedPreferences
+            val editor = prefs.edit()
+            editor.putString(PREF_LANGUAGE, languageCode)
+            editor.apply()
+
+            // Guardar el email en SharedPreferences
+            email = prefs.getString("email", null)
+            println("Email recuperado en setLocale: $email")
+
+            // Actualizar el botón de idioma
+            updateLanguageButton()
+
+            // Reiniciar la actividad para aplicar el nuevo idioma
+            val refresh = Intent(this, ProfileActivity::class.java)
+            refresh.putExtra("email", email)
+            println("Passing email in Intent: $email")
+            refresh.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(refresh)
+        } else {
+            println("Idioma ya establecido, no es necesario reiniciar.")
+        }
+    }
+
+    private fun loadLocale() {
+        val prefs = getSharedPreferences(PREFS_NAME, Activity.MODE_PRIVATE)
+        val language = prefs.getString(PREF_LANGUAGE, "es")
+        val currentLocale = Locale.getDefault().language
+
+        println("loadLocale called")
+        println("Current language in SharedPreferences: $language")
+        println("Current locale: $currentLocale")
+
+        if (language != null && language != currentLocale) {
+            setLocale(language)
+        } else {
+            println("El idioma ya está configurado, no se requiere cambio.")
+        }
+    }
+    private fun updateLanguageButton() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentLanguageCode = prefs.getString(PREF_LANGUAGE, "es") ?: "es"
+        val currentIndex = languageCodes.indexOf(currentLanguageCode)
+
+        val languageButton: Button = findViewById(R.id.language_button)
+        languageButton.text = getString(languages[currentIndex])
+        languageButton.setCompoundDrawablesWithIntrinsicBounds(languageFlags[currentIndex], 0, 0, 0)
+    }
+
+
+    override fun onBackPressed() {
+        val intent = Intent(this, MenuActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+    }
     override fun onResume() {
         super.onResume()
         // Cargar los datos del perfil cuando se reanuda la actividad
         loadUserProfile()
+        updateLanguageButton() // Actualiza el botón de idioma
+
     }
     private fun togglePasswordVisibility(isChecked: Boolean) {
         val currentPasswordTypeface = currentPasswordEditText.typeface
@@ -150,8 +307,13 @@ class ProfileActivity : AppCompatActivity() {
         currentPasswordEditText.setSelection(currentPasswordEditText.text.length)
         newPasswordEditText.setSelection(newPasswordEditText.text.length)
     }
-
     private fun loadUserProfile() {
+        // Guardar el email en SharedPreferences
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString("email", email)
+        editor.apply()
+
         // Referencia a la base de datos de usuarios
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
@@ -165,7 +327,6 @@ class ProfileActivity : AppCompatActivity() {
                         val phone = userSnapshot.child("phone").getValue(String::class.java) ?: ""
                         val address = userSnapshot.child("address").getValue(String::class.java) ?: ""
                         val profilePicUrl = userSnapshot.child("profilePic").getValue(String::class.java) ?: ""
-                        val email = email ?: ""
 
                         // Asignar el valor del uid al userid
                         userid = uid
@@ -208,6 +369,7 @@ class ProfileActivity : AppCompatActivity() {
         })
     }
 
+
     // Método para manejar el clic en el ImageView del lápiz
     fun editProfile(view: View) {
         isEditModeEnabled = !isEditModeEnabled // Alternar el estado de la edición
@@ -230,6 +392,7 @@ class ProfileActivity : AppCompatActivity() {
         // Cambiar la visibilidad del botón
         confirmButton.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         showPasswordCheckBox.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        languageButton.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
         signOutTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
         currentPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         newPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
@@ -268,7 +431,8 @@ class ProfileActivity : AppCompatActivity() {
 
         if (!isUsernameChanged && !isAddressChanged && !isPhoneChanged && !isProfilePicChanged && !isPasswordChanged) {
             vibrateButton(this)
-            Toast.makeText(this, "No hay ningún cambio realizado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.no_hay_ning_n_cambio_realizado), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -299,15 +463,18 @@ class ProfileActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
                         if (updateTask.isSuccessful) {
-                            Toast.makeText(this, "Contraseña actualizada correctamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this,
+                                getString(R.string.contrase_a_actualizada_correctamente), Toast.LENGTH_SHORT).show()
                             finishUpdate()
                         } else {
-                            Toast.makeText(this, "Error al actualizar la contraseña", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this,
+                                getString(R.string.error_al_actualizar_la_contrase_a), Toast.LENGTH_SHORT).show()
                             highlightPasswordFields()
                         }
                     }
                 } else {
-                    Toast.makeText(this, "La contraseña actual es incorrecta", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.la_contrase_a_actual_es_incorrecta), Toast.LENGTH_SHORT).show()
                     highlightPasswordFields()
                 }
             }
@@ -341,7 +508,8 @@ class ProfileActivity : AppCompatActivity() {
     // Método para finalizar la actualización del perfil
     private fun finishUpdate() {
         // Mostrar un mensaje de éxito
-        Toast.makeText(this@ProfileActivity, "El Perfil ha sido Actualizado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@ProfileActivity,
+            getString(R.string.el_perfil_ha_sido_actualizado), Toast.LENGTH_SHORT).show()
 
         // Deshabilitar el botón Confirmar Cambios y cambiar la imagen del lápiz a gris
         isEditModeEnabled = false
@@ -350,6 +518,8 @@ class ProfileActivity : AppCompatActivity() {
         newPasswordEditText.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
         signOutTxtView.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
         showPasswordCheckBox.visibility = if (isEditModeEnabled) View.VISIBLE else View.GONE
+        languageButton.visibility = if (isEditModeEnabled) View.GONE else View.VISIBLE
+
         (findViewById<View>(R.id.edit_profile_button) as ImageView).setImageResource(R.drawable.baseline_edit_24_gray)
 
         // Alternar visibilidad entre EditText y TextView
@@ -385,11 +555,11 @@ class ProfileActivity : AppCompatActivity() {
     private fun showSignOutConfirmationDialog() {
         // Crear el diálogo de confirmación
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Estás a punto de cerrar sesión")
-        builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+        builder.setTitle(getString(R.string.est_s_a_punto_de_cerrar_sesi_n))
+        builder.setMessage(getString(R.string.est_s_seguro_de_que_quieres_cerrar_sesi_n))
 
         // Botón "Sí": cierra sesión
-        builder.setPositiveButton("Sí") { dialog, which ->
+        builder.setPositiveButton(getString(R.string.s)) { dialog, which ->
             // Cerrar sesión
             FirebaseAuth.getInstance().signOut()
             // Redirigir a la pantalla de inicio de sesión
@@ -399,7 +569,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         // Botón "No": cancela
-        builder.setNegativeButton("No") { dialog, which ->
+        builder.setNegativeButton(getString(R.string.no2)) { dialog, which ->
             // Cerrar el diálogo sin hacer nada
             dialog.dismiss()
         }
@@ -434,15 +604,17 @@ class ProfileActivity : AppCompatActivity() {
                 // Todos los permisos han sido concedidos
                 showImagePickDialog()
             } else {
-                Toast.makeText(this, "Se requieren permisos para acceder a la cámara y almacenamiento.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.se_requieren_permisos_para_acceder_a_la_c_mara_y_almacenamiento), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun showImagePickDialog() {
-        val options = arrayOf("Cámara", "Archivos del dispositivo")
+        val options = arrayOf(getString(R.string.c_mara3),
+            getString(R.string.archivos_del_dispositivo3))
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Seleccionar imagen desde")
+        builder.setTitle(getString(R.string.seleccionar_imagen_desde2))
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> openCamera()
@@ -522,7 +694,8 @@ class ProfileActivity : AppCompatActivity() {
                 preloadImage(uri.toString())
             }
         }.addOnFailureListener {
-            Toast.makeText(this, "Error al cargar la imagen: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                getString(R.string.error_al_cargar_la_imagen, it.localizedMessage), Toast.LENGTH_LONG).show()
         }
     }
 

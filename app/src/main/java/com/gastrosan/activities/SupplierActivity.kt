@@ -152,7 +152,8 @@ class SupplierActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             } else {
-                Toast.makeText(this, "Número de teléfono no disponible", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.n_mero_de_tel_fono_no_disponible), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -171,16 +172,17 @@ class SupplierActivity : AppCompatActivity() {
             val selectedItems = adapter.getSelectedItems()
 
             if (selectedItems.isEmpty()) {
-                Toast.makeText(this, "No hay facturas seleccionadas para eliminar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.no_hay_facturas_seleccionadas_para_eliminar), Toast.LENGTH_SHORT).show()
             } else {
                 // Mostrar un diálogo de confirmación antes de eliminar
                 AlertDialog.Builder(this)
-                    .setTitle("Confirmar eliminación")
-                    .setMessage("¿Estás seguro de que deseas eliminar las facturas seleccionadas?")
-                    .setPositiveButton("Eliminar") { dialog, which ->
+                    .setTitle(getString(R.string.confirmar_eliminaci_n5))
+                    .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_las_facturas_seleccionadas))
+                    .setPositiveButton(getString(R.string.eliminar5)) { dialog, which ->
                         deleteInvoices(selectedItems, adapter)
                     }
-                    .setNegativeButton("Cancelar", null)
+                    .setNegativeButton(getString(R.string.cancelar), null)
                     .show()
             }        }
         buttonCancel.setOnClickListener {
@@ -227,7 +229,8 @@ class SupplierActivity : AppCompatActivity() {
                 // Todos los permisos han sido concedidos
                 showImagePickDialog()
             } else {
-                Toast.makeText(this, "Se requieren permisos para acceder a la cámara y almacenamiento.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.se_requieren_permisos_para_acceder_a_la_c_mara_y_almacenamiento2), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -238,7 +241,8 @@ class SupplierActivity : AppCompatActivity() {
             loadSupplierDetails(supplierId)
         } else {
             // Handle cases where supplierId is not available
-            Toast.makeText(this, "Error: Supplier details not available.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                getString(R.string.error_supplier_details_not_available), Toast.LENGTH_LONG).show()
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -256,9 +260,9 @@ class SupplierActivity : AppCompatActivity() {
 
 
     private fun showImagePickDialog() {
-        val options = arrayOf("Cámara", "Archivos del dispositivo")
+        val options = arrayOf(getString(R.string.c_mara3), getString(R.string.archivos_del_dispositivo3))
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Seleccionar imagen desde")
+        builder.setTitle(getString(R.string.seleccionar_imagen_desde2))
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> openCamera()
@@ -349,7 +353,8 @@ class SupplierActivity : AppCompatActivity() {
             }
             fos?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to save image: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                getString(R.string.failed_to_save_image, e.localizedMessage), Toast.LENGTH_LONG).show()
         }
 
         return imageUri
@@ -370,7 +375,8 @@ class SupplierActivity : AppCompatActivity() {
                 preloadImage(uri.toString())
             }
         }.addOnFailureListener {
-            Toast.makeText(this, "Error al cargar la imagen: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                getString(R.string.error_al_cargar_la_imagen2, it.localizedMessage), Toast.LENGTH_LONG).show()
         }
     }
     private fun preloadImage(url: String) {
@@ -441,7 +447,8 @@ class SupplierActivity : AppCompatActivity() {
     private fun updateSupplierDetails(supplierRef: DatabaseReference, updateMap: Map<String, Any>, onComplete: () -> Unit) {
         supplierRef.updateChildren(updateMap).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(this, "Datos actualizados correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.datos_actualizados_correctamente), Toast.LENGTH_SHORT).show()
                 tempImageUri = null // Limpiar la URI temporal
                 cambiosConfirmados = true // Marcar cambios como confirmados
 
@@ -455,7 +462,8 @@ class SupplierActivity : AppCompatActivity() {
                     loadLogo(updateMap["logoUrl"].toString()) // Asegúrate de que se carga la nueva imagen en el hilo principal
                 }
             } else {
-                Toast.makeText(this, "Error al actualizar los datos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.error_al_actualizar_los_datos), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -558,9 +566,11 @@ class SupplierActivity : AppCompatActivity() {
             val invoiceId = adapter.getInvoiceId(index)  // Necesitas implementar este método en InvoiceAdapter
             databaseRef.child(invoiceId).removeValue().addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Toast.makeText(this, "Factura eliminada correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.factura_eliminada_correctamente2), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Error al eliminar la factura", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.error_al_eliminar_la_factura2), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -576,12 +586,12 @@ class SupplierActivity : AppCompatActivity() {
     }
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar este proveedor y todas sus facturas?")
-            .setPositiveButton("Eliminar") { dialog, which ->
+            .setTitle(getString(R.string.confirmar_eliminaci_n6))
+            .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_este_proveedor_y_todas_sus_facturas5))
+            .setPositiveButton(getString(R.string.eliminar6)) { dialog, which ->
                 deleteSupplier()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancelar4), null)
             .show()
     }
     private fun deleteSupplier() {
@@ -594,10 +604,12 @@ class SupplierActivity : AppCompatActivity() {
         // Eliminar el proveedor de Firebase
         supplierRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(this, "Proveedor eliminado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.proveedor_eliminado_correctamente3), Toast.LENGTH_SHORT).show()
                 navigateToDashboard()
             } else {
-                Toast.makeText(this, "Error al eliminar el proveedor: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.error_al_eliminar_el_proveedor3, task.exception?.message), Toast.LENGTH_SHORT).show()
             }
         }
     }

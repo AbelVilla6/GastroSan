@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.gastrosan.R
 import com.gastrosan.databinding.ActivityAddSupplierBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -51,7 +52,8 @@ class AddSupplierActivity : AppCompatActivity() {
             imageUri?.let { uri ->
                 println("URI de la imagen capturada: $uri")
                 binding.imageProvider.setImageURI(uri)
-            } ?: Toast.makeText(this, "Error al cargar la imagen capturada", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(this,
+                getString(R.string.error_al_cargar_la_imagen_capturada), Toast.LENGTH_SHORT).show()
 
         }
     }
@@ -59,7 +61,8 @@ class AddSupplierActivity : AppCompatActivity() {
         if (isGranted) {
             openCamera()
         } else {
-            Toast.makeText(this, "Se necesita permiso de la cámara.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.se_necesita_permiso_de_la_c_mara), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -122,9 +125,10 @@ class AddSupplierActivity : AppCompatActivity() {
         }
     }
     private fun showImagePickDialog() {
-        val options = arrayOf("Cámara", "Archivos del dispositivo")
+        val options = arrayOf(getString(R.string.c_mara2),
+            getString(R.string.archivos_del_dispositivo))
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Seleccionar imagen desde")
+        builder.setTitle(getString(R.string.seleccionar_imagen_desde))
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> openCamera()
@@ -201,7 +205,7 @@ class AddSupplierActivity : AppCompatActivity() {
                 saveSupplierToDatabase(imageUrl)  // Ahora pasamos la URL de la imagen a este método
             }
         }.addOnFailureListener {
-            Toast.makeText(this, "Upload failed: ${it.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.upload_failed, it.message), Toast.LENGTH_LONG).show()
             saveSupplierToDatabase()  // Intenta guardar el proveedor sin la imagen si la subida falla
         }
     }
@@ -233,14 +237,17 @@ class AddSupplierActivity : AppCompatActivity() {
             databaseRef.child(userId).child("suppliers").child(supplierId)
                 .setValue(supplierData)
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Proveedor guardado exitosamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.proveedor_guardado_exitosamente), Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error al guardar el proveedor: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.error_al_guardar_el_proveedor, e.message), Toast.LENGTH_SHORT).show()
                 }
         } else {
-            Toast.makeText(this, "El nombre del proveedor es obligatorio", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                getString(R.string.el_nombre_del_proveedor_es_obligatorio), Toast.LENGTH_SHORT).show()
         }
     }
 

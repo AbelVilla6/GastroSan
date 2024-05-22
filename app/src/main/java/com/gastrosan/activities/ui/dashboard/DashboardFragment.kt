@@ -118,19 +118,21 @@ class DashboardFragment : Fragment() {
                 buttonCancel.visibility = View.VISIBLE
                 switchAdapter(true)
             } else {
-                Toast.makeText(context, "Los datos aún no están cargados, por favor espere.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.los_datos_a_n_no_est_n_cargados_por_favor_espere), Toast.LENGTH_SHORT).show()
             }
         }
         buttonDelete.setOnClickListener {
             val adapter = listViewProviders.adapter as? CustomSelectableAdapter
             if (adapter?.getSelectedSuppliers()?.isEmpty() == true) {
-                Toast.makeText(context, "Seleccione al menos un proveedor para eliminar.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.seleccione_al_menos_un_proveedor_para_eliminar), Toast.LENGTH_SHORT).show()
             } else {
                 context?.let { it1 ->
                     AlertDialog.Builder(it1)
-                        .setTitle("Confirmar eliminación")
-                        .setMessage("¿Estás seguro de que quieres eliminar los proveedores seleccionados?")
-                        .setPositiveButton("Eliminar") { dialog, _ ->
+                        .setTitle(getString(R.string.confirmar_eliminaci_n3))
+                        .setMessage(getString(R.string.est_s_seguro_de_que_quieres_eliminar_los_proveedores_seleccionados))
+                        .setPositiveButton(getString(R.string.eliminar4)) { dialog, _ ->
                             adapter?.getSelectedSuppliers()?.forEach { supplierId ->
                                 deleteSupplierFromFirebase(supplierId)
                             }
@@ -141,7 +143,7 @@ class DashboardFragment : Fragment() {
                             buttonDelete.visibility = View.GONE
                             buttonCancel.visibility = View.GONE
                         }
-                        .setNegativeButton("Cancelar", null)
+                        .setNegativeButton(getString(R.string.cancelar), null)
                         .show()
                 }
             }
@@ -363,10 +365,12 @@ class DashboardFragment : Fragment() {
         val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userId/suppliers/$supplierId")
         databaseRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(context, "Proveedor eliminado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.proveedor_eliminado_correctamente), Toast.LENGTH_SHORT).show()
                 loadSuppliers() // Reload the suppliers from Firebase
             } else {
-                Toast.makeText(context, "Error al eliminar proveedor", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.error_al_eliminar_proveedor), Toast.LENGTH_SHORT).show()
             }
         }
     }

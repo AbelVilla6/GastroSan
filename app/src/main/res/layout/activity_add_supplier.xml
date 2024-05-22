@@ -26,7 +26,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="50dp"
             android:layout_marginEnd="8dp"
-            android:text="AÑADIR PROVEEDOR"
+            android:text="@string/a_adir_proveedor"
             android:fontFamily="sans-serif-condensed-medium"
             android:textAlignment="center"
             android:textIsSelectable="true"
@@ -71,7 +71,7 @@
             android:id="@+id/editProviderName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nombre del Proveedor"
+            android:hint="@string/nombre_del_proveedor"
             android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -90,7 +90,7 @@
             android:id="@+id/editContactName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nombre Persona de Contacto"
+            android:hint="@string/nombre_persona_de_contacto"
             android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -109,7 +109,7 @@
             android:id="@+id/editContactPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Teléfono de Contacto"
+            android:hint="@string/tel_fono_de_contacto"
             android:inputType="phone"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -120,7 +120,7 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/button_background"
         android:padding="8dp"
-        android:text="Guardar Proveedor"
+        android:text="@string/guardar_proveedor"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
