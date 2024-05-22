@@ -196,7 +196,7 @@ class AddSupplierActivity : AppCompatActivity() {
 
         // Extraer solo el nombre del archivo del URI, ignorando cualquier otro path
         val fileName = imageUri.lastPathSegment?.substringAfterLast('/') ?: "default_${System.currentTimeMillis()}.jpg"
-        val storageRef = FirebaseStorage.getInstance().reference.child("suppliers_logo/${userId}/$fileName}")
+        val storageRef = FirebaseStorage.getInstance().reference.child("suppliers_logo/$userId/$fileName")
         val uploadTask = storageRef.putFile(imageUri)
 
         uploadTask.addOnSuccessListener {

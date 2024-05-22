@@ -66,8 +66,8 @@ class LoginActivity : AppCompatActivity() {
             // El usuario no está logueado, inicializar componentes para login
             initializeLoginComponents()
         }
-
     }
+
     fun vibrateButton(context: Context) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,8 +93,8 @@ class LoginActivity : AppCompatActivity() {
             setCanceledOnTouchOutside(false)
         }
         setupSignInMethods()
-
     }
+
     private fun setupSignInMethods() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -143,12 +143,10 @@ class LoginActivity : AppCompatActivity() {
         val password = inputPassword.text.toString()
 
         if (email.isEmpty() || !email.contains("@")) {
-            showError(inputEmail,
-                getString(R.string.por_favor_introduzca_un_correo_electr_nico_v_lido))
+            showError(inputEmail, getString(R.string.por_favor_introduzca_un_correo_electr_nico_v_lido))
             return
         } else if (password.isEmpty() || password.length < 6) {
-            showError(inputPassword,
-                getString(R.string.la_contrase_a_debe_tener_al_menos_6_caracteres))
+            showError(inputPassword, getString(R.string.la_contrase_a_debe_tener_al_menos_6_caracteres))
             return
         }
 
@@ -159,11 +157,11 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 goToMenuActivity()
             } else {
-                Toast.makeText(this,
-                    getString(R.string.email_o_contrase_a_incorrectos), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.email_o_contrase_a_incorrectos), Toast.LENGTH_SHORT).show()
             }
         }
     }
+
     private fun googleSignIn() {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
@@ -179,8 +177,7 @@ class LoginActivity : AppCompatActivity() {
                 }
                 goToMenuActivity()
             } else {
-                Toast.makeText(this,
-                    getString(R.string.ha_ocurrido_un_error_en_nuestros_servidores), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.ha_ocurrido_un_error_en_nuestros_servidores), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -199,10 +196,11 @@ class LoginActivity : AppCompatActivity() {
                         uid = uid,
                         username = username,
                         email = email,
-                        password = null, // Contraseña no se almacena para usuarios de Google
-                        phone = null,
-                        address = null,
-                        profilePic = profilePic
+                        password = "", // Contraseña no se almacena para usuarios de Google
+                        phone = "",
+                        address = "",
+                        profilePic = profilePic,
+                        suppliers = "" // Inicializar el campo suppliers
                     )
 
                     database.child(uid).setValue(newUser).addOnCompleteListener { task ->
@@ -220,6 +218,7 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun goToMenuActivity() {
         startActivity(Intent(this, MenuActivity::class.java))

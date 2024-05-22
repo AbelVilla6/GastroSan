@@ -70,8 +70,8 @@
 
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/imageViewInvoice"
-        android:layout_width="245dp"
-        android:layout_height="300dp"
+        android:layout_width="230dp"
+        android:layout_height="280dp"
         android:scaleType="fitCenter"
         android:visibility="visible"
         android:layout_marginTop="10dp"
@@ -83,7 +83,7 @@
         android:id="@+id/textViewSupplierName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:paddingTop="8dp"
         android:textStyle="bold"
         android:gravity="center"
@@ -96,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewSupplierName"
         app:layout_constraintTop_toBottomOf="@+id/textViewSupplierName"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:paddingTop="4dp"
         android:textStyle="italic"
         android:gravity="center"
@@ -105,7 +105,7 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="190dp"
         android:layout_marginStart="6dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="6dp"
@@ -172,8 +172,9 @@
 
         <Button
             android:id="@+id/add_row_button"
-            android:layout_width="120dp"
+            android:layout_width="wrap_content"
             android:layout_height="45dp"
+            android:padding="5dp"
             android:background="@drawable/button_background"
             android:text="@string/a_adir_datos"
             android:textColor="@color/white" />

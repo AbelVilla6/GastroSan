@@ -276,17 +276,20 @@ class CameraFragment : Fragment() {
         // Obtener la referencia de la base de datos de Firebase
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        valueEventListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
-                    return
-                }
-                if (dataSnapshot.exists()) {
-                    val providerList = ArrayList<Suppliers>()
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            println("UID: $uid")
 
-                    for (userSnapshot in dataSnapshot.children) {
-                        val suppliersSnapshot = userSnapshot.child("suppliers")
+            valueEventListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                        return
+                    }
+                    if (dataSnapshot.exists()) {
+                        val providerList = ArrayList<Suppliers>()
+                        val suppliersSnapshot = dataSnapshot.child("suppliers")
 
                         suppliersSnapshot.children.forEach { providerSnapshot ->
                             val id = providerSnapshot.child("id").getValue(String::class.java)
@@ -299,32 +302,35 @@ class CameraFragment : Fragment() {
                             val supplier = Suppliers(id, name, logoUrl, contactName, contactPhone)
                             providerList.add(supplier)
                         }
+
+                        // Crear el adaptador personalizado
+                        val adapter = CameraFragment.CustomAdapter(
+                            requireContext(),
+                            R.layout.list_item_provider2,
+                            providerList
+                        )
+                        listViewProviders.adapter = adapter
+                        isLoadingData = false // Datos cargados, ajustar estado
+                        println("ListView should now be visible")
+
+                    } else {
+                        println("No existe usuario con este UID.")
                     }
+                }
 
-                    // Crear el adaptador personalizado, ahora incluyendo selectedIndex
-                    val adapter = CameraFragment.CustomAdapter(
-                        requireContext(),
-                        R.layout.list_item_provider2,
-                        providerList // Asegúrate de pasar selectedIndex aquí
-                    )
-                    listViewProviders.adapter = adapter
-                    isLoadingData = false // Datos cargados, ajustar estado
-                    println("ListView should now be visible")
-
-                } else {
-                    println("No existe usuario con este correo electrónico.")
+                override fun onCancelled(error: DatabaseError) {
+                    if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                        return
+                    }
+                    println("Error al cargar proveedores: ${error.message}")
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
-                    return
-                }
-                println("Error al cargar proveedores: ${error.message}")
-            }
+            usersRef.child(uid).addListenerForSingleValueEvent(valueEventListener)
+        } else {
+            println("Usuario no autenticado")
         }
-        usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(valueEventListener)
     }
+
 
 
     private fun takePhoto() {
@@ -635,6 +641,7 @@ class CameraFragment : Fragment() {
                 println("Error al guardar la información de la factura: ${it.message}")
             }
     }
+
     private fun navigateHome() {
         // Handler con un delay de 8 segundos
         Handler(Looper.getMainLooper()).postDelayed({

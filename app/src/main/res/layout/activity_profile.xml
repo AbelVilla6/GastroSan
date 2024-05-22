@@ -31,7 +31,7 @@
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textIsSelectable="true"
-            android:textSize="45sp"
+            android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.486"
             app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +97,7 @@
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
             android:textColor="@color/Primary"
-            android:textSize="35sp"
+            android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -113,7 +113,7 @@
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
             android:textColor="@color/Primary"
-            android:textSize="30sp"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -132,7 +132,7 @@
             android:textIsSelectable="true"
             android:fontFamily="sans-serif-condensed-medium"
             android:textColor="@color/PrimaryVariant"
-            android:textSize="20sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
@@ -162,7 +162,7 @@
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -177,21 +177,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_baseline_email_24"
                 app:tint="#0590FF" />
 
             <TextView
                 android:id="@+id/email_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="282dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="8dp"
+                android:textColor="@color/black"
                 android:text="@string/correo_electr_nico"
                 android:textIsSelectable="true"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -212,7 +213,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_baseline_email_24"
                 app:tint="#0590FF" />
@@ -222,11 +223,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="40dp"
+                android:textColor="@color/black"
+                android:layout_marginTop="15dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/correo_electr_nico2"
                 android:textIsSelectable="true"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <!-- Phone Section -->
@@ -255,7 +257,7 @@
 
             <TextView
                 android:id="@+id/phone_text"
-                android:layout_width="150dp"
+                android:layout_width="282dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="20dp"
@@ -263,7 +265,7 @@
                 android:hint="@string/n_de_tel_fono"
                 android:inputType="phone"
                 android:text="@string/_34_000_00_00_00"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.031"

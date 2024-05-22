@@ -6,10 +6,11 @@ class Users {
     var phone: String? = null
     var address: String? = null
     var profilePic: String? = null
+    var suppliers: String? = null // Añadir el campo suppliers
 
     constructor()
 
-    constructor(uid: String?, username: String?, email: String?, password: String?, phone: String?, address: String?, profilePic: String?) {
+    constructor(uid: String?, username: String?, email: String?, password: String?, phone: String?, address: String?, profilePic: String?, suppliers: String?) {
         this.uid = uid
         this.username = username
         this.email = email
@@ -17,9 +18,10 @@ class Users {
         this.phone = phone
         this.address = address
         this.profilePic = profilePic
+        this.suppliers = suppliers // Inicializar el campo suppliers
     }
 
     override fun toString(): String {
-        return "User(uid='$uid', username='$username', email='$email', password='$password', phone='$phone', address='$address', profilePic='$profilePic')"
+        return "User(uid='$uid', username='$username', email='$email', password='$password', phone='$phone', address='$address', profilePic='$profilePic', suppliers='$suppliers')"
     }
 }

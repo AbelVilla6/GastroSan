@@ -360,12 +360,11 @@ class SupplierActivity : AppCompatActivity() {
         return imageUri
     }
 
-
     private fun uploadImageUriToFirebase(imageUri: Uri, callback: (String) -> Unit) {
         println("Uploading URI to Firebase: $imageUri")
         val supplierId = intent.getStringExtra("supplierId") ?: return
         val filePath = "suppliers/$supplierId/logo/${UUID.randomUUID()}.jpg"
-        val storageRef = storageInstance.getReference(filePath)
+        val storageRef = FirebaseStorage.getInstance().getReference(filePath)
 
         storageRef.putFile(imageUri).addOnSuccessListener {
             it.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
@@ -379,6 +378,7 @@ class SupplierActivity : AppCompatActivity() {
                 getString(R.string.error_al_cargar_la_imagen2, it.localizedMessage), Toast.LENGTH_LONG).show()
         }
     }
+
     private fun preloadImage(url: String) {
         Glide.with(this)
             .load(url)
@@ -420,6 +420,7 @@ class SupplierActivity : AppCompatActivity() {
 
         val supplierRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
             .getReference("users/${FirebaseAuth.getInstance().currentUser?.uid}/suppliers/$supplierId")
+
 
         // Si hay una nueva imagen, subirla y luego actualizar todos los detalles
         tempImageUri?.let { newImageUri ->
@@ -467,6 +468,7 @@ class SupplierActivity : AppCompatActivity() {
             }
         }
     }
+
 
 
     private fun toggleEditMode() {

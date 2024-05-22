@@ -39,7 +39,7 @@
         android:id="@+id/editText1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="30dp"
         android:backgroundTint="#CCCCCC"
         android:drawableLeft="@drawable/ic_baseline_email_24"
         android:drawablePadding="13dp"
