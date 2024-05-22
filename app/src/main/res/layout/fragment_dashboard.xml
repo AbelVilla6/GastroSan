@@ -11,29 +11,44 @@
         android:id="@+id/textViewProviders"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:text="LISTA DE PROVEEDORES"
+        android:layout_marginTop="64dp"
+        android:text="@string/lista_de_proveedores"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/searchView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <SearchView
+    <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="35dp"
+        android:background="@drawable/searchview_background"
         android:layout_marginEnd="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewProviders" />
+        app:layout_constraintTop_toBottomOf="@id/textViewProviders"
+        style="@style/SearchViewStyle"/>
+
+    <TextView
+        android:id="@+id/noProvidersMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:text="@string/vaya_actualmente_no_tienes_ning_n_proveedor_asociado_a_tu_restaurante_puedes_empezar_a_adiendo_alguno"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/searchView"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <ListView
         android:id="@+id/listViewProviders"
@@ -62,10 +77,14 @@
 
         <ImageView
             android:id="@+id/addSupplier"
-            android:layout_width="48dp"
-            android:layout_height="47dp"
-            android:src="@drawable/baseline_add"
-            app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/add_icon"
+            android:background="@drawable/ripple_effect"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp"
+            android:scaleType="centerInside" />
 
         <ImageView
             android:id="@+id/deleteSupplier"
@@ -73,26 +92,27 @@
             android:layout_height="47dp"
             android:layout_marginStart="80dp"
             android:src="@drawable/baseline_delete"
-            app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
+            android:background="@drawable/ripple_effect"/>
 
         <Button
             android:id="@+id/buttonCancel"
-            android:layout_width="0dp"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:text="Cancelar"
-            android:layout_weight="1"
-            android:visibility="gone"/>
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:text="@string/cancelar2"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/buttonDelete"
-            android:layout_width="0dp"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:text="Eliminar"
-            android:layout_weight="1"
-            android:visibility="gone"/>
-
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:text="@string/eliminar2"
+            android:layout_marginStart="20dp"
+            android:visibility="gone" />
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

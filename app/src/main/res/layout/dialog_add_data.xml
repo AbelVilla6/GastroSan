@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText
+        android:id="@+id/input_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/nombre"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/input_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/cantidad2"
+        android:inputType="number"
+        android:maxLength="20"/>
+
+    <EditText
+        android:id="@+id/input_lote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/n_lote2"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/input_pvp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/pvp2"
+        android:inputType="numberDecimal"/>
+
+
+</LinearLayout>

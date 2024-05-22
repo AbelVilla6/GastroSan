@@ -1,5 +1,6 @@
 package com.gastrosan.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.ContentValues
@@ -7,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,6 +16,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,11 +49,20 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.navigation.fragment.findNavController
 import com.airbnb.lottie.LottieAnimationView
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.google.firebase.database.DatabaseReference
 import java.io.File
 import java.io.OutputStream
 import java.util.Date
 import java.util.UUID
+import com.bumptech.glide.request.target.Target
+
+
+import com.bumptech.glide.signature.ObjectKey
+
 
 
 class SupplierActivity : AppCompatActivity() {
@@ -61,6 +73,7 @@ class SupplierActivity : AppCompatActivity() {
     private lateinit var buttonCancel: Button
     private lateinit var buttonDeleteSupplier: Button
     private lateinit var editButton: ImageView
+    private lateinit var phoneImageView: ImageView
     private lateinit var buttonConfirmChanges: Button
     private lateinit var textViewSupplierName: TextView
     private lateinit var editTextSupplierName: EditText
@@ -76,6 +89,11 @@ class SupplierActivity : AppCompatActivity() {
     private var originalLogoUri: Uri? = null
 
     private var cambiosConfirmados = false
+
+    private var isDialogShown: Boolean = false
+
+    private lateinit var profileIcon: ImageView
+    private var userEmail: String? = null
 
 
 
@@ -95,9 +113,12 @@ class SupplierActivity : AppCompatActivity() {
         editTextSupplierName = findViewById(R.id.editTextSupplierName)
         textViewContactName = findViewById(R.id.textViewContactName)
         editTextContactName = findViewById(R.id.editTextViewContactName)
+        phoneImageView = findViewById(R.id.phone_imageview)
         textViewContactPhone = findViewById(R.id.textViewContactPhone)
         editTextContactPhone = findViewById(R.id.editTextViewContactPhone)
         imageViewLogo = findViewById(R.id.imageViewLogo)
+        profileIcon = findViewById(R.id.profile_icon)
+
 
         // Recuperar el ID pasado desde DashboardFragment
         val supplierId = intent.getStringExtra("supplierId")
@@ -105,10 +126,35 @@ class SupplierActivity : AppCompatActivity() {
             loadSupplierDetails(supplierId)
         }
 
+        // Obtener el correo electrónico del usuario actual desde FirebaseAuth
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        userEmail = currentUser?.email
+        println("Email en SupplierActivity: $userEmail")
+
         addSupplier.setOnClickListener {
             val intent = Intent(this@SupplierActivity, MenuActivity::class.java)
             intent.putExtra("navigateToCameraFragment", true)
             startActivity(intent)
+        }
+        profileIcon.setOnClickListener {
+            // Iniciar ProfileActivity pasando el correo electrónico del usuario
+            val intent = Intent(this, ProfileActivity::class.java).apply {
+                putExtra("email", userEmail)
+            }
+            startActivity(intent)
+        }
+        // Configura el OnClickListener para el phone
+        phoneImageView.setOnClickListener {
+            val phoneNumber = textViewContactPhone.text.toString()
+            if (phoneNumber.isNotEmpty()) {
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$phoneNumber")
+                }
+                startActivity(intent)
+            } else {
+                Toast.makeText(this,
+                    getString(R.string.n_mero_de_tel_fono_no_disponible), Toast.LENGTH_SHORT).show()
+            }
         }
 
         deleteSupplier.setOnClickListener {
@@ -116,6 +162,7 @@ class SupplierActivity : AppCompatActivity() {
             adapter.toggleSelectMode()
             addSupplier.visibility = View.GONE
             deleteSupplier.visibility = View.GONE
+            buttonDeleteSupplier.visibility = View.GONE
             buttonDelete.visibility = View.VISIBLE
             buttonCancel.visibility = View.VISIBLE
         }
@@ -125,16 +172,17 @@ class SupplierActivity : AppCompatActivity() {
             val selectedItems = adapter.getSelectedItems()
 
             if (selectedItems.isEmpty()) {
-                Toast.makeText(this, "No hay facturas seleccionadas para eliminar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.no_hay_facturas_seleccionadas_para_eliminar), Toast.LENGTH_SHORT).show()
             } else {
                 // Mostrar un diálogo de confirmación antes de eliminar
                 AlertDialog.Builder(this)
-                    .setTitle("Confirmar eliminación")
-                    .setMessage("¿Estás seguro de que deseas eliminar las facturas seleccionadas?")
-                    .setPositiveButton("Eliminar") { dialog, which ->
+                    .setTitle(getString(R.string.confirmar_eliminaci_n5))
+                    .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_las_facturas_seleccionadas))
+                    .setPositiveButton(getString(R.string.eliminar5)) { dialog, which ->
                         deleteInvoices(selectedItems, adapter)
                     }
-                    .setNegativeButton("Cancelar", null)
+                    .setNegativeButton(getString(R.string.cancelar), null)
                     .show()
             }        }
         buttonCancel.setOnClickListener {
@@ -144,6 +192,7 @@ class SupplierActivity : AppCompatActivity() {
             deleteSupplier.visibility = View.VISIBLE
             buttonDelete.visibility = View.GONE
             buttonCancel.visibility = View.GONE
+            buttonDeleteSupplier.visibility = View.VISIBLE
         }
         buttonDeleteSupplier.setOnClickListener { showDeleteConfirmationDialog()}
 
@@ -180,14 +229,40 @@ class SupplierActivity : AppCompatActivity() {
                 // Todos los permisos han sido concedidos
                 showImagePickDialog()
             } else {
-                Toast.makeText(this, "Se requieren permisos para acceder a la cámara y almacenamiento.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.se_requieren_permisos_para_acceder_a_la_c_mara_y_almacenamiento2), Toast.LENGTH_SHORT).show()
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        val supplierId = intent.getStringExtra("supplierId")
+        if (supplierId != null) {
+            loadSupplierDetails(supplierId)
+        } else {
+            // Handle cases where supplierId is not available
+            Toast.makeText(this,
+                getString(R.string.error_supplier_details_not_available), Toast.LENGTH_LONG).show()
+        }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("supplierId", intent.getStringExtra("supplierId"))
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val supplierId = savedInstanceState.getString("supplierId")
+        if (supplierId != null) {
+            loadSupplierDetails(supplierId)
+        }
+    }
+
+
     private fun showImagePickDialog() {
-        val options = arrayOf("Cámara", "Archivos del dispositivo")
+        val options = arrayOf(getString(R.string.c_mara3), getString(R.string.archivos_del_dispositivo3))
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Seleccionar imagen desde")
+        builder.setTitle(getString(R.string.seleccionar_imagen_desde2))
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> openCamera()
@@ -236,12 +311,14 @@ class SupplierActivity : AppCompatActivity() {
                 CAMERA_REQUEST_CODE -> {
                     // La imagen está siendo guardada como un archivo, se debe obtener de nuevo el Uri aquí
                     photoFileUri?.let {
+                        println("Camera URI: $it")
                         imageViewLogo.setImageURI(it)
                         tempImageUri = it  // Guardar la URI para usar después
                     }
                 }
                 GALLERY_REQUEST_CODE -> {
                     data?.data?.let { uri ->
+                        println("Gallery URI: $uri")
                         imageViewLogo.setImageURI(uri)
                         tempImageUri = uri  // Guardar la URI para usar después
                     }
@@ -276,7 +353,8 @@ class SupplierActivity : AppCompatActivity() {
             }
             fos?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to save image: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                getString(R.string.failed_to_save_image, e.localizedMessage), Toast.LENGTH_LONG).show()
         }
 
         return imageUri
@@ -284,33 +362,30 @@ class SupplierActivity : AppCompatActivity() {
 
 
     private fun uploadImageUriToFirebase(imageUri: Uri, callback: (String) -> Unit) {
+        println("Uploading URI to Firebase: $imageUri")
         val supplierId = intent.getStringExtra("supplierId") ?: return
         val filePath = "suppliers/$supplierId/logo/${UUID.randomUUID()}.jpg"
         val storageRef = storageInstance.getReference(filePath)
 
-        storageRef.putFile(imageUri).addOnSuccessListener { taskSnapshot ->
-            taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
+        storageRef.putFile(imageUri).addOnSuccessListener {
+            it.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
+                println("Firebase Uploaded Image URI: $uri")
                 callback(uri.toString())
+                // Pre-cargar la imagen para mejorar la respuesta en la interfaz
+                preloadImage(uri.toString())
             }
-        }.addOnFailureListener { e ->
-            Toast.makeText(this, "Error al cargar la imagen: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }.addOnFailureListener {
+            Toast.makeText(this,
+                getString(R.string.error_al_cargar_la_imagen2, it.localizedMessage), Toast.LENGTH_LONG).show()
         }
     }
-
-    private fun updateSupplierLogoUrl(supplierId: String, imageUrl: String) {
-        val supplierRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
-            .getReference("users/${FirebaseAuth.getInstance().currentUser?.uid}/suppliers/$supplierId")
-
-        val updateMap = mapOf("logoUrl" to imageUrl)
-        supplierRef.updateChildren(updateMap)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "URL del logo actualizado correctamente", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Error al actualizar el URL del logo", Toast.LENGTH_SHORT).show()
-                }
-            }
+    private fun preloadImage(url: String) {
+        Glide.with(this)
+            .load(url)
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
+            .preload()
     }
+
 
 
     companion object {
@@ -321,52 +396,79 @@ class SupplierActivity : AppCompatActivity() {
 
 
     private fun confirmChanges() {
+        cambiosConfirmados = true
+
+        println("Original URI before update: $tempImageUri")
         val supplierId = intent.getStringExtra("supplierId") ?: return
         val newSupplierName = editTextSupplierName.text.toString()
         val newContactName = editTextContactName.text.toString()
         val newContactPhone = editTextContactPhone.text.toString()
 
-        // Obtener referencia a la vista de animación
+        // Mostrar animación
         val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
         lottieAnimationView.visibility = View.VISIBLE
         lottieAnimationView.playAnimation()
-
-        // Detener la animación después de un delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            lottieAnimationView.visibility = View.GONE
-            lottieAnimationView.cancelAnimation()
-        }, 1000)  // Delay de 1000 ms (1 segundos)
-
-        val supplierRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
-            .getReference("users/${FirebaseAuth.getInstance().currentUser?.uid}/suppliers/$supplierId")
 
         val updateMap = mutableMapOf<String, Any>(
             "name" to newSupplierName,
             "contactName" to newContactName,
             "contactPhone" to newContactPhone
         )
+        updateMap.forEach { (key, value) ->
+            println("Update Map - $key: $value")
+        }
 
-        // Si hay una nueva imagen, subirla y actualizar el URL en la base de datos
-        tempImageUri?.let {
-            uploadImageUriToFirebase(it) { imageUrl ->
+        val supplierRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("users/${FirebaseAuth.getInstance().currentUser?.uid}/suppliers/$supplierId")
+
+        // Si hay una nueva imagen, subirla y luego actualizar todos los detalles
+        tempImageUri?.let { newImageUri ->
+            uploadImageUriToFirebase(newImageUri) { imageUrl ->
                 updateMap["logoUrl"] = imageUrl
-                updateSupplierDetails(supplierRef, updateMap)
+                updateSupplierDetails(supplierRef, updateMap) {
+                    loadLogo(imageUrl)  // Ensure this is the new URL
+                    stopLoadingAnimation(lottieAnimationView)
+                }
             }
-        } ?: updateSupplierDetails(supplierRef, updateMap)  // No hay nueva imagen, solo actualizar otros datos
+        } ?: updateSupplierDetails(supplierRef, updateMap) {
+            loadLogo(supplierRef.child("logoUrl").toString())  // This may not correctly get the URL; check Firebase structure
+            stopLoadingAnimation(lottieAnimationView)
+        }
+    }
+    private fun stopLoadingAnimation(animationView: LottieAnimationView) {
+        runOnUiThread {
+            animationView.visibility = View.GONE
+            animationView.cancelAnimation()
+            toggleEditMode()  // Make sure this is what you want to happen right after stopping the animation
+        }
     }
 
-    private fun updateSupplierDetails(supplierRef: DatabaseReference, updateMap: Map<String, Any>) {
+
+    private fun updateSupplierDetails(supplierRef: DatabaseReference, updateMap: Map<String, Any>, onComplete: () -> Unit) {
         supplierRef.updateChildren(updateMap).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(this, "Datos actualizados correctamente", Toast.LENGTH_SHORT).show()
-                tempImageUri = null  // Limpiar la URI temporal después de la actualización
-                cambiosConfirmados = true  // Marcar que los cambios han sido confirmados
-                toggleEditMode()  // Llamar a toggleEditMode para volver a modo de visualización
+                Toast.makeText(this,
+                    getString(R.string.datos_actualizados_correctamente), Toast.LENGTH_SHORT).show()
+                tempImageUri = null // Limpiar la URI temporal
+                cambiosConfirmados = true // Marcar cambios como confirmados
+
+                // Aquí actualizamos las vistas
+                textViewSupplierName.text = updateMap["name"] as String
+                textViewContactName.text = updateMap["contactName"] as String
+                textViewContactPhone.text = updateMap["contactPhone"] as String
+
+                onComplete() // Ejecutar callback
+                runOnUiThread {
+                    loadLogo(updateMap["logoUrl"].toString()) // Asegúrate de que se carga la nueva imagen en el hilo principal
+                }
             } else {
-                Toast.makeText(this, "Error al actualizar los datos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.error_al_actualizar_los_datos), Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+
     private fun toggleEditMode() {
         if (textViewSupplierName.visibility == View.VISIBLE) {
             // Entrar en modo de edición
@@ -382,7 +484,7 @@ class SupplierActivity : AppCompatActivity() {
         originalSupplierName = textViewSupplierName.text.toString()
         originalContactName = textViewContactName.text.toString()
         originalContactPhone = textViewContactPhone.text.toString()
-        originalLogoUri = if (imageViewLogo.tag != null) imageViewLogo.tag as Uri else null
+        originalLogoUri = imageViewLogo.tag as Uri?
         println("Original logo URI: $originalLogoUri")
 
         textViewSupplierName.visibility = View.GONE
@@ -405,42 +507,37 @@ class SupplierActivity : AppCompatActivity() {
             checkAndRequestPermissions()
         }
 
-        /*editTextSupplierName.setText(textViewSupplierName.text)
-        editTextContactName.setText(textViewContactName.text)
-        editTextContactPhone.setText(textViewContactPhone.text)*/
-
         buttonConfirmChanges.visibility = View.VISIBLE
         editButton.setImageResource(R.drawable.baseline_edit__blue_24)
     }
 
     private fun exitEditMode() {
         if(!cambiosConfirmados){
-            // Restablecer los valores originales
+            // Restablecer los valores originales en los TextViews
             textViewSupplierName.text = originalSupplierName
             textViewContactName.text = originalContactName
             textViewContactPhone.text = originalContactPhone
-        }else{
-            // Restablecer los valores editados
-            textViewSupplierName.text = editTextSupplierName.text
-            textViewContactName.text = editTextContactName.text
-            textViewContactPhone.text = editTextContactPhone.text
-        }
 
-        if (originalLogoUri != null) {
-            Glide.with(this)
-                .load(originalLogoUri)
-                .placeholder(R.drawable.default_logo)
-                .error(R.drawable.default_logo)
-                .into(imageViewLogo)
-            imageViewLogo.tag = originalLogoUri  // Restablecer la etiqueta
-        } else {
-            // Restablece a imagen por defecto o alguna lógica similar
-            imageViewLogo.setImageResource(R.drawable.default_logo)
-        }
+            // También restablecer los valores en los EditTexts
+            editTextSupplierName.setText(originalSupplierName)
+            editTextContactName.setText(originalContactName)
+            editTextContactPhone.setText(originalContactPhone)
 
-        /*textViewSupplierName.text = editTextSupplierName.text
-        textViewContactName.text = editTextContactName.text
-        textViewContactPhone.text = editTextContactPhone.text*/
+            originalLogoUri?.let {
+                Glide.with(this)
+                    .load(it)
+                    .into(imageViewLogo)
+            } ?: imageViewLogo.setImageResource(R.drawable.default_logo)
+
+            // Restablecer la imagen del logo al URI original guardado
+            if (originalLogoUri != null) {
+
+                imageViewLogo.setImageURI(originalLogoUri)
+
+            } else {
+                imageViewLogo.setImageResource(R.drawable.default_logo)
+            }
+        }
 
         textViewSupplierName.visibility = View.VISIBLE
         editTextSupplierName.visibility = View.GONE
@@ -453,9 +550,10 @@ class SupplierActivity : AppCompatActivity() {
         buttonDeleteSupplier.visibility = View.VISIBLE
 
         imageViewLogo.setOnClickListener(null) // Remover el listener
-
         buttonConfirmChanges.visibility = View.GONE
         editButton.setImageResource(R.drawable.baseline_edit_24_gray)
+        cambiosConfirmados = false  // Resetear el flag
+
     }
 
 
@@ -468,9 +566,11 @@ class SupplierActivity : AppCompatActivity() {
             val invoiceId = adapter.getInvoiceId(index)  // Necesitas implementar este método en InvoiceAdapter
             databaseRef.child(invoiceId).removeValue().addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Toast.makeText(this, "Factura eliminada correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.factura_eliminada_correctamente2), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Error al eliminar la factura", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        getString(R.string.error_al_eliminar_la_factura2), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -479,18 +579,19 @@ class SupplierActivity : AppCompatActivity() {
         adapter.removeItems(selectedIndices)
         adapter.toggleSelectMode() // Desactivar modo de selección
         buttonDelete.visibility = View.GONE
+        buttonDeleteSupplier.visibility = View.VISIBLE
         buttonCancel.visibility = View.GONE
         addSupplier.visibility = View.VISIBLE
         deleteSupplier.visibility = View.VISIBLE
     }
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Confirmar eliminación")
-            .setMessage("¿Estás seguro de que deseas eliminar este proveedor y todas sus facturas?")
-            .setPositiveButton("Eliminar") { dialog, which ->
+            .setTitle(getString(R.string.confirmar_eliminaci_n6))
+            .setMessage(getString(R.string.est_s_seguro_de_que_deseas_eliminar_este_proveedor_y_todas_sus_facturas5))
+            .setPositiveButton(getString(R.string.eliminar6)) { dialog, which ->
                 deleteSupplier()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancelar4), null)
             .show()
     }
     private fun deleteSupplier() {
@@ -503,10 +604,12 @@ class SupplierActivity : AppCompatActivity() {
         // Eliminar el proveedor de Firebase
         supplierRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(this, "Proveedor eliminado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.proveedor_eliminado_correctamente3), Toast.LENGTH_SHORT).show()
                 navigateToDashboard()
             } else {
-                Toast.makeText(this, "Error al eliminar el proveedor: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,
+                    getString(R.string.error_al_eliminar_el_proveedor3, task.exception?.message), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -533,6 +636,11 @@ class SupplierActivity : AppCompatActivity() {
                     val contactName = dataSnapshot.child("contactName").getValue(String::class.java)
                     val contactPhone = dataSnapshot.child("contactPhone").getValue(String::class.java)
                     val registrationDate = dataSnapshot.child("registrationDate").getValue(String::class.java)
+
+                    supplierLogoUrl?.let {
+                        originalLogoUri = Uri.parse(it) // Guarda el URI como global
+                        loadImageIntoView(it)
+                    }
 
                     val textViewSupplierName = findViewById<TextView>(R.id.textViewSupplierName)
                     textViewSupplierName.text = supplierName
@@ -570,11 +678,11 @@ class SupplierActivity : AppCompatActivity() {
                     }
                     val textViewEmpty = findViewById<TextView>(R.id.textViewEmpty)
 
-                    if(invoices.isEmpty()){
+                    if (invoices.isEmpty()) {
                         gridView.visibility = View.GONE
                         textViewEmpty.visibility = View.VISIBLE
                         deleteSupplier.visibility = View.GONE
-                    }else{
+                    } else {
                         textViewEmpty.visibility = View.GONE
                         gridView.visibility = View.VISIBLE
                         deleteSupplier.visibility = View.VISIBLE
@@ -583,7 +691,7 @@ class SupplierActivity : AppCompatActivity() {
                     invoices.sortByDescending { it.dateTime }
 
                     val gridView = findViewById<GridView>(R.id.gridViewInvoices)
-                    val adapter = InvoiceAdapter(this@SupplierActivity, this@SupplierActivity, invoices)
+                    val adapter = InvoiceAdapter(this@SupplierActivity, this@SupplierActivity, invoices, supplierId)
                     gridView.adapter = adapter
 
                     // Cargar la imagen del logo del proveedor usando Glide
@@ -598,37 +706,73 @@ class SupplierActivity : AppCompatActivity() {
     }
 
 
+    private fun loadImageIntoView(imageUrl: String?) {
+        imageUrl?.let {
+            Glide.with(this)
+                .load(it)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .placeholder(R.drawable.default_logo)
+                .error(R.drawable.default_logo)
+                .into(imageViewLogo)
+
+            imageViewLogo.tag = Uri.parse(imageUrl)  // Guarda el URI en el tag del ImageView
+        } ?: imageViewLogo.setImageResource(R.drawable.default_logo)
+    }
 
     private fun loadLogo(imageUrl: String?) {
+        println("Loading Image URL: $imageUrl")
         val imageViewLogo = findViewById<ImageView>(R.id.imageViewLogo)
-        if (!imageUrl.isNullOrEmpty()) {
-            val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-            storageReference.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(this)
-                    .load(uri)
-                    .placeholder(R.drawable.default_logo)
-                    .error(R.drawable.default_logo)
-                    .into(imageViewLogo)
-                imageViewLogo.tag = uri // Guarda la URI en la tag del ImageView
-            }.addOnFailureListener {
-                imageViewLogo.setImageResource(R.drawable.default_logo) // Image load failure
-                imageViewLogo.tag = null
-            }
-        } else {
-            imageViewLogo.setImageResource(R.drawable.default_logo) // Default image if URL is empty or not proper
-            imageViewLogo.tag = null
+        val lottieAnimationView = findViewById<LottieAnimationView>(R.id.lottieAnimationView)
+
+        imageUrl?.let {
+            println("Attempting to load image with URL: $imageUrl")
+
+            Glide.with(this)
+                .load(imageUrl)
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        runOnUiThread {
+                            lottieAnimationView.cancelAnimation()
+                            lottieAnimationView.visibility = View.GONE
+                        }
+                        return false
+                    }
+
+                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                        runOnUiThread {
+                            lottieAnimationView.cancelAnimation()
+                            lottieAnimationView.visibility = View.GONE
+                        }
+                        return false
+                    }
+                })
+                .into(imageViewLogo)
+        } ?: run {
+            imageViewLogo.setImageResource(R.drawable.default_logo)
+            lottieAnimationView.cancelAnimation()
+            lottieAnimationView.visibility = View.GONE
         }
     }
 
-    private fun showFullImageDialog(imageUrl: String) {
+        @SuppressLint("SuspiciousIndentation")
+        private fun showFullImageDialog(imageUrl: String, position: Int) {
+        if (isDialogShown) return // Prevent reopening if already shown
+
+        val supplierId = (gridView.adapter as InvoiceAdapter).supplierId  // Acceder directamente desde el adaptador
         val dialog = Dialog(this, R.style.FullScreenDialog)
+
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
         dialog.setCanceledOnTouchOutside(true)
         dialog.setContentView(R.layout.dialog_full_image)
+        dialog.setOnDismissListener {
+            isDialogShown = false  // Reset flag when dialog is dismissed
+        }
 
         val fullImageView = dialog.findViewById<it.sephiroth.android.library.imagezoom.ImageViewTouch>(R.id.fullImageView)
         val closeButton = dialog.findViewById<ImageView>(R.id.closeButton)
+        val viewInvoice = dialog.findViewById<TextView>(R.id.viewInvoice)
 
         Glide.with(this)
             .load(imageUrl)
@@ -640,20 +784,31 @@ class SupplierActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
+        viewInvoice.setOnClickListener {
+            dialog.dismiss()  // Dismiss dialog before navigating
+
+            val invoice = (gridView.adapter as InvoiceAdapter).getItem(position)
+            val intent = Intent(this@SupplierActivity, InvoiceDetailsActivity::class.java).apply {
+                putExtra("imageUrl", invoice.imageUrl)
+                putExtra("supplierName", textViewSupplierName.text.toString()) // Asegurándote de que supplierName es accesible
+                putExtra("date", invoice.date)
+                putExtra("time", invoice.time)
+                putExtra("invoiceId", invoice.id)
+                putExtra("supplierId", supplierId)
+            }
+            startActivity(intent)
+        }
+
         dialog.show()
-    }
+        isDialogShown = true
 
-
-
+        }
 
     fun dismissDialog(view: View) {
         if (view.context is Dialog) {
             (view.context as Dialog).dismiss()
         }
     }
-
-
-
 
 
     data class Invoice(
@@ -665,7 +820,7 @@ class SupplierActivity : AppCompatActivity() {
 
     )
 
-    class InvoiceAdapter(private val context: Context, private val activity: SupplierActivity, private var invoices: MutableList<Invoice>) : BaseAdapter() {
+    class InvoiceAdapter(private val context: Context, private val activity: SupplierActivity, private var invoices: MutableList<Invoice>, val supplierId: String) : BaseAdapter() {
         var selectMode = false
         private val selectedItems = mutableSetOf<Int>()
         override fun getCount(): Int = invoices.size
@@ -678,7 +833,6 @@ class SupplierActivity : AppCompatActivity() {
             val holder: ViewHolder
             val invoice = getItem(position)
             val textViewDate: TextView
-
 
 
             if (convertView == null) {
@@ -695,7 +849,6 @@ class SupplierActivity : AppCompatActivity() {
                 imageView = holder.imageView
                 checkBox = holder.checkBox
             }
-            println("Attempting to load image URL: ${invoice}")  // Confirmar qué URL se está intentando cargar
 
             Glide.with(context)
                 .load(invoice.imageUrl)
@@ -712,11 +865,9 @@ class SupplierActivity : AppCompatActivity() {
             }
 
             imageView.setOnClickListener {
-                activity.showFullImageDialog(invoice.imageUrl)
+                activity.showFullImageDialog(invoice.imageUrl, position)
+
             }
-
-
-
 
             return view
         }

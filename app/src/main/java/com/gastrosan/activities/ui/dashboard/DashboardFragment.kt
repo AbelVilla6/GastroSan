@@ -6,15 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.gastrosan.databinding.FragmentDashboardBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import android.widget.ListView
 import Suppliers
+import android.animation.Animator
 import android.content.Context
 import android.content.Intent
 import android.widget.ArrayAdapter
@@ -25,17 +24,15 @@ import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
 import android.widget.Filterable
 import android.widget.Filter
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.updatePadding
 import java.util.ArrayList
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import java.io.File
-import com.bumptech.glide.load.engine.cache.DiskCache
 import com.gastrosan.activities.AddSupplierActivity
 import com.gastrosan.activities.SupplierActivity
 import java.util.Locale
-
+import com.airbnb.lottie.LottieAnimationView
 
 class DashboardFragment : Fragment() {
 
@@ -45,6 +42,7 @@ class DashboardFragment : Fragment() {
     private lateinit var deleteSupplier: ImageView
     private lateinit var buttonCancel: Button
     private lateinit var buttonDelete: Button
+    private lateinit var noProvidersMessage: TextView
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
@@ -65,7 +63,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,8 +76,25 @@ class DashboardFragment : Fragment() {
         deleteSupplier = root.findViewById(R.id.deleteSupplier)
         buttonCancel = root.findViewById(R.id.buttonCancel)
         buttonDelete = root.findViewById(R.id.buttonDelete)
+        noProvidersMessage = root.findViewById(R.id.noProvidersMessage) // Inicializa la vista
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
+
+        // Ajustar los parámetros del SearchView para mover la lupa a la derecha
+        searchView.setIconifiedByDefault(false)
+        searchView.maxWidth = Integer.MAX_VALUE
+
+        // Obtener los iconos del SearchView
+        val searchIcon: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_mag_icon)
+        val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+        val searchPlate: ViewGroup = searchView.findViewById(androidx.appcompat.R.id.search_plate)
+
+        // Configurar padding para que el texto esté alineado a la izquierda
+        searchPlate.updatePadding(left = 0, right = 0)
+        searchIcon.updatePadding(left = 0, right = 16) // Ajusta el padding según sea necesario
+
+        // Asegurarse de que el botón de cierre esté visible
+        searchClose.visibility = ImageView.VISIBLE
 
         //receive email from menu
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -89,10 +103,13 @@ class DashboardFragment : Fragment() {
 
         loadSuppliers()
 
+        // En tu DashboardFragment
         addSupplier.setOnClickListener {
             val intent = Intent(activity, AddSupplierActivity::class.java)
             startActivity(intent)
         }
+
+
         deleteSupplier.setOnClickListener {
             if (providerList.isNotEmpty()) {
                 addSupplier.visibility = View.GONE
@@ -101,19 +118,21 @@ class DashboardFragment : Fragment() {
                 buttonCancel.visibility = View.VISIBLE
                 switchAdapter(true)
             } else {
-                Toast.makeText(context, "Los datos aún no están cargados, por favor espere.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.los_datos_a_n_no_est_n_cargados_por_favor_espere), Toast.LENGTH_SHORT).show()
             }
         }
         buttonDelete.setOnClickListener {
             val adapter = listViewProviders.adapter as? CustomSelectableAdapter
             if (adapter?.getSelectedSuppliers()?.isEmpty() == true) {
-                Toast.makeText(context, "Seleccione al menos un proveedor para eliminar.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.seleccione_al_menos_un_proveedor_para_eliminar), Toast.LENGTH_SHORT).show()
             } else {
                 context?.let { it1 ->
                     AlertDialog.Builder(it1)
-                        .setTitle("Confirmar eliminación")
-                        .setMessage("¿Estás seguro de que quieres eliminar los proveedores seleccionados?")
-                        .setPositiveButton("Eliminar") { dialog, _ ->
+                        .setTitle(getString(R.string.confirmar_eliminaci_n3))
+                        .setMessage(getString(R.string.est_s_seguro_de_que_quieres_eliminar_los_proveedores_seleccionados))
+                        .setPositiveButton(getString(R.string.eliminar4)) { dialog, _ ->
                             adapter?.getSelectedSuppliers()?.forEach { supplierId ->
                                 deleteSupplierFromFirebase(supplierId)
                             }
@@ -124,7 +143,7 @@ class DashboardFragment : Fragment() {
                             buttonDelete.visibility = View.GONE
                             buttonCancel.visibility = View.GONE
                         }
-                        .setNegativeButton("Cancelar", null)
+                        .setNegativeButton(getString(R.string.cancelar), null)
                         .show()
                 }
             }
@@ -164,7 +183,6 @@ class DashboardFragment : Fragment() {
         return root
     }
 
-
     private fun loadSuppliers() {
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
@@ -176,7 +194,6 @@ class DashboardFragment : Fragment() {
                 }
                 if (dataSnapshot.exists()) {
                     providerList.clear() // Limpiar lista anterior
-                    //val providerList = ArrayList<Suppliers>()
 
                     for (userSnapshot in dataSnapshot.children) {
                         val suppliersSnapshot = userSnapshot.child("suppliers")
@@ -194,13 +211,24 @@ class DashboardFragment : Fragment() {
                         }
                     }
 
-                    /*// Crear el adaptador personalizado
-                    val adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
-                    listViewProviders.adapter = adapter*/
+                    // Mostrar u ocultar el mensaje de "No hay proveedores" según sea necesario
+                    if (providerList.isEmpty()) {
+                        listViewProviders.visibility = View.GONE
+                        noProvidersMessage.visibility = View.VISIBLE
+                        searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
+                    } else {
+                        listViewProviders.visibility = View.VISIBLE
+                        noProvidersMessage.visibility = View.GONE
+                        searchView.visibility = View.VISIBLE // Mostrar SearchView si hay proveedores
+                    }
+
                     listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
 
                 } else {
                     println("No existe usuario con este correo electrónico.")
+                    listViewProviders.visibility = View.GONE
+                    noProvidersMessage.visibility = View.VISIBLE
+                    searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
                 }
             }
 
@@ -212,6 +240,11 @@ class DashboardFragment : Fragment() {
             }
         }
         usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(valueEventListener)
+    }
+    override fun onResume() {
+        super.onResume()
+        // Recargar los proveedores cuando el fragmento vuelve a estar activo
+        loadSuppliers()
     }
 
     override fun onDestroyView() {
@@ -230,6 +263,7 @@ class DashboardFragment : Fragment() {
             listViewProviders.adapter = normalAdapter
         }
     }
+
     class CustomSelectableAdapter(
         context: Context,
         objects: ArrayList<Suppliers>
@@ -288,7 +322,6 @@ class DashboardFragment : Fragment() {
             return view
         }
 
-
         override fun getCount(): Int = filteredSuppliersList.size
 
         override fun getItem(position: Int): Suppliers? = filteredSuppliersList[position]
@@ -302,7 +335,9 @@ class DashboardFragment : Fragment() {
                     } else {
                         val filteredList = ArrayList<Suppliers>()
                         for (row in suppliersList) {
-                            if (row.name?.toLowerCase(Locale.ROOT)?.contains(charString.toLowerCase(Locale.ROOT))!!) {
+                            if (row.name?.lowercase(Locale.ROOT)?.contains(charString.lowercase(
+                                    Locale.ROOT
+                                ))!!) {
                                 filteredList.add(row)
                             }
                         }
@@ -325,21 +360,20 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
-
     private fun deleteSupplierFromFirebase(supplierId: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userId/suppliers/$supplierId")
         databaseRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(context, "Proveedor eliminado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.proveedor_eliminado_correctamente), Toast.LENGTH_SHORT).show()
                 loadSuppliers() // Reload the suppliers from Firebase
             } else {
-                Toast.makeText(context, "Error al eliminar proveedor", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.error_al_eliminar_proveedor), Toast.LENGTH_SHORT).show()
             }
         }
     }
-
 
     class CustomAdapter(
         context: android.content.Context,
@@ -350,11 +384,12 @@ class DashboardFragment : Fragment() {
         private var supplierList: ArrayList<Suppliers> = objects
         private var filteredSupplierList: ArrayList<Suppliers> = objects
         private var originalSupplierList: ArrayList<Suppliers> = ArrayList(objects)
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val inflater = context.getSystemService(android.content.Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val row = inflater.inflate(R.layout.list_item_provider, parent, false)
 
-            if(position >=0 && position < filteredSupplierList.size){
+            if (position >= 0 && position < filteredSupplierList.size) {
                 // Obtener el objeto Supplier en la posición dada
                 val supplier = getItem(position)
 
@@ -398,18 +433,19 @@ class DashboardFragment : Fragment() {
             }
             return row
         }
+
         override fun getFilter(): Filter {
             return object : Filter() {
                 override fun performFiltering(constraint: CharSequence?): FilterResults {
                     val filteredResults = FilterResults()
-                    val searchText = constraint.toString().toLowerCase()
+                    val searchText = constraint.toString().lowercase(Locale.getDefault())
 
                     // Crear una lista para almacenar los resultados filtrados
                     val resultList = ArrayList<Suppliers>()
 
                     // Iterar sobre la lista original de proveedores y agregar los que coincidan con el texto de búsqueda
                     for (supplier in supplierList) {
-                        val name = supplier.name?.toLowerCase()
+                        val name = supplier.name?.lowercase(Locale.getDefault())
 
                         // Verificar si el nombre del proveedor contiene el texto de búsqueda
                         if (name != null && name.contains(searchText)) {
@@ -429,7 +465,7 @@ class DashboardFragment : Fragment() {
                         // Limpiar la lista filtrada antes de agregar los resultados del filtro
                         filteredSupplierList.clear()
 
-                        if (constraint.isNullOrEmpty() ) {
+                        if (constraint.isNullOrEmpty()) {
                             // Si el filtro está vacío, mostrar toda la lista original de proveedores
                             filteredSupplierList.addAll(originalSupplierList)
                         } else {
@@ -445,10 +481,7 @@ class DashboardFragment : Fragment() {
                         println("Error al publicar resultados: $e")
                     }
                 }
-
-
             }
         }
     }
 }
-

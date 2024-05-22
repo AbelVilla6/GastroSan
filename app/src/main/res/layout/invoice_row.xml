@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.75"
+        android:textAppearance="@style/TableCell"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/textQuantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.75"
+        android:textAppearance="@style/TableCell"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/textLot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.0"
+        android:textAppearance="@style/TableCell"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/textPVP"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:textAppearance="@style/TableCell"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/textAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.0"
+        android:textAppearance="@style/TableCell"
+        android:gravity="center"/>
+
+</LinearLayout>

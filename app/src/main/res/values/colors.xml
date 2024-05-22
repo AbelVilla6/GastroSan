@@ -167,5 +167,7 @@
     <color name="Gradiente" tools:ignore="ReferenceType">@drawable/background_gradient</color>
     <color name="design_default_color_primary">#FF6200EE</color>
     <color name="non_selected_item">#FFFFFF</color>
+    <color name="light_gray">#E0E0E0</color>
+    <color name="background">#6F7D8C</color>
 
 </resources>

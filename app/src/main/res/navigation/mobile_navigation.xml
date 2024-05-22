@@ -14,12 +14,12 @@
     <fragment
         android:id="@+id/navigation_camera"
         android:name="com.gastrosan.activities.ui.camera.CameraFragment"
-        android:label="Cámara"
+        android:label="@string/c_mara"
         tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.gastrosan.activities.ui.dashboard.DashboardFragment"
-        android:label="Proveedores"
+        android:label="@string/proveedores"
         tools:layout="@layout/fragment_dashboard" />
 </navigation>

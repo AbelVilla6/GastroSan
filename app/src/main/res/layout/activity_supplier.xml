@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,11 +13,61 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        tools:layout_editor_absoluteX="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/left_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/center_section"
+                app:layout_constraintWidth_percent="0.25" />
+
+            <FrameLayout
+                android:id="@+id/center_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toEndOf="@+id/left_section"
+                app:layout_constraintEnd_toStartOf="@+id/right_section"
+                app:layout_constraintWidth_percent="0.50">
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/logo_gastrosan4"
+                    android:src="@drawable/logo_gastrosan" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/right_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toEndOf="@+id/center_section"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.25">
+
+                <ImageView
+                    android:id="@+id/profile_icon"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@string/icono_perfil3"
+                    android:onClick="onProfileIconClick"
+                    android:padding="12dp"
+                    android:background="@drawable/ripple_effect"
+                    android:src="@drawable/profile_icon" />
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <!-- activity_supplier_details.xml -->
     <LinearLayout
@@ -44,7 +95,6 @@
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/default_logo" />
 
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -63,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginStart="22dp"
-                        android:text="Nombre del Proveedor"
+                        android:text="@string/nombre_del_proveedor2"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textStyle="bold" />
 
@@ -74,7 +124,7 @@
                         android:layout_gravity="center"
                         android:layout_marginStart="22dp"
                         android:inputType="textPersonName"
-                        android:text="Nombre del Proveedor"
+                        android:text="@string/nombre_del_proveedor3"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textStyle="bold"
                         android:visibility="gone" />
@@ -94,7 +144,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Proveedor desde..."
+                    android:text="@string/proveedor_desde"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="italic" />
@@ -114,7 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Nombre de contacto : "
+                android:text="@string/nombre_de_contacto"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
@@ -122,7 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Nombre de contacto : "
+                android:text="@string/nombre_de_contacto2"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
 
@@ -138,14 +188,14 @@
                 android:id="@+id/textViewContactPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teléfono de contacto"
+                android:text="@string/tel_fono_de_contacto2"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/editTextViewContactPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teléfono de contacto"
+                android:text="@string/tel_fono_de_contacto3"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
 
@@ -172,7 +222,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Este proveedor no tiene ninguna factura almacenada."
+            android:text="@string/este_proveedor_no_tiene_ninguna_factura_almacenada"
             android:textColor="@color/black"
             android:visibility="gone" />
 
@@ -181,13 +231,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
 
             <ImageView
                 android:id="@+id/addSupplier"
                 android:layout_width="48dp"
                 android:layout_height="47dp"
-                android:src="@drawable/baseline_add"
+                android:src="@drawable/add_icon"
+                android:background="@drawable/ripple_effect"
                 app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
 
             <ImageView
@@ -196,41 +248,54 @@
                 android:layout_height="47dp"
                 android:layout_marginStart="80dp"
                 android:src="@drawable/baseline_delete"
+                android:background="@drawable/ripple_effect"
                 app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
 
             <Button
                 android:id="@+id/buttonCancel"
-                android:layout_width="0dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cancelar"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_background"
+                android:textColor="@color/white"
+                android:text="@string/cancelar"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/buttonDelete"
-                android:layout_width="0dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Eliminar"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="40dp"
+                android:background="@drawable/button_background"
+                android:textColor="@color/white"
+                android:text="@string/eliminar"
                 android:visibility="gone" />
-
-
         </LinearLayout>
 
-        <!-- Botón para eliminar al proveedor -->
         <Button
             android:id="@+id/buttonDeleteSupplier"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Eliminar Proveedor" />
+            android:layout_gravity="center"
+            android:background="@drawable/button_background3"
+            android:textColor="@color/white"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:text="@string/eliminar_proveedor" />
 
         <Button
             android:id="@+id/buttonConfirmChanges"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Confirmar Cambios"
+            android:layout_gravity="center"
+            android:background="@drawable/button_background3"
+            android:textColor="@color/white"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/confirmar_cambios4"
             android:visibility="gone" />
 
     </LinearLayout>
@@ -245,9 +310,5 @@
         android:visibility="gone"
         android:layout_centerInParent="true"
         tools:ignore="MissingConstraints" />
-
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

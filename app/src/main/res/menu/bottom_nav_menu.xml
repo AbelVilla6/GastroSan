@@ -10,12 +10,12 @@
     <item
         android:id="@+id/navigation_camera"
         android:icon="@drawable/baseline_photo_camera_24"
-        android:title="Cámara" />
+        android:title="@string/c_mara" />
 
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_proveedores"
-        android:title="Proveedores" />
+        android:title="@string/proveedores3" />
 
 
 </menu>

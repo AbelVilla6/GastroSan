@@ -23,5 +23,24 @@
         <item name="android:backgroundDimAmount">0.9</item> <!-- Ajusta la cantidad de oscurecimiento según necesites -->
     </style>
 
+    <style name="TableCell">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@drawable/table_cell_background</item>
+    </style>
+    <style name="TableHeader" parent="TableCell">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TableCellExtraCost" parent="TableCell">
+        <item name="android:background">@drawable/table_cell_extra_cost_background</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- No sobreescribas los íconos -->
+        <!-- <item name="closeIcon">@null</item> -->
+        <!-- <item name="searchIcon">@null</item> -->
+    </style>
+
 
 </resources>

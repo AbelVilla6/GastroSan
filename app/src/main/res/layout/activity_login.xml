@@ -4,23 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray"
+    android:background="@color/background"
     tools:context=".activities.LoginActivity">
+
 
     <TextView
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="152dp"
         android:fontFamily="@font/lobster"
         android:text="@string/gastrosan"
         android:textAlignment="center"
-        android:textColor="@color/Orange"
-        android:textSize="44sp"
+        android:textColor="@color/Primary"
+        android:textSize="60sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="163dp"
+        android:layout_height="117dp"
+        android:src="@drawable/logo_gastrosan"
+
+        app:layout_constraintBottom_toTopOf="@+id/textView1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="MissingConstraints" />
 
     <EditText
         android:id="@+id/editText1"
@@ -61,7 +74,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Mostrar Contraseña"
+        android:text="@string/mostrar_contrase_a"
         android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/button1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -69,19 +82,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText2"
         app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints"
-        app:layout_constraintWidth_percent=".5"/>
+        app:layout_constraintWidth_percent=".5"
+        tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/button1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="264dp"
-        android:background="@drawable/btn_bg_design"
+        android:background="@drawable/button_background2"
         android:onClick="mainMenu"
         android:padding="14dp"
         android:text="@string/iniciar_sesiOn"
         android:textAllCaps="false"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,46 +105,20 @@
         app:layout_constraintWidth_percent=".8"
         tools:ignore="MissingConstraints" />
 
-
-    <!--<TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="@string/iniciar_sesion_con_huella"
-        android:textAlignment="center"
-        android:textColor="@color/CadetBlue"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button1" />-->
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="88dp"
-        android:layout_height="67dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.374"
-        app:layout_constraintStart_toEndOf="@+id/button2"
-        app:layout_constraintTop_toBottomOf="@+id/button1"
-        app:srcCompat="@drawable/fingerprint_dialog_fp_icon"
-        tools:ignore="MissingConstraints" />
-
     <ImageView
         android:id="@+id/button2"
         android:layout_width="123dp"
         android:layout_height="112dp"
-        android:contentDescription="Inicio de sesión con Google"
+        android:contentDescription="@string/inicio_de_sesi_n_con_google"
         android:padding="14dp"
         android:src="@drawable/google_logo"
         android:textAllCaps="false"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textView3"
-        app:layout_constraintEnd_toStartOf="@id/imageView1"
-        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button1"
+        app:layout_constraintVertical_bias="0.255"
         app:layout_constraintWidth_percent=".8"
         tools:ignore="MissingConstraints" />
 
@@ -138,12 +126,13 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="92dp"
         android:text="@string/aun_no_tienes_cuenta"
         android:textAlignment="center"
         android:textStyle="bold"
+        android:textSize="19sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView1"
         app:layout_constraintVertical_bias="0.375" />
 
     <TextView
@@ -153,7 +142,9 @@
         android:onClick="signIn"
         android:text="@string/registrarse"
         android:textAlignment="center"
-        android:textColor="@color/IndianRed"
+        android:textSize="17sp"
+        android:textColor="@color/blue"
+        android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

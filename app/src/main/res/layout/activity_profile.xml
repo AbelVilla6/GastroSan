@@ -24,16 +24,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="35dp"
             android:layout_marginEnd="8dp"
-            android:fontFamily="sans-serif-condensed-medium"
-            android:text="Nombre Restaurante"
+            android:fontFamily="@font/lobster"
+            android:text="@string/nombre_restaurante"
             android:textAlignment="center"
-            android:textIsSelectable="true"
             android:textColor="@color/white"
-            android:textSize="25sp"
+            android:textIsSelectable="true"
+            android:textSize="45sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintHorizontal_bias="0.486"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,18 +48,17 @@
             app:layout_constraintHorizontal_bias="0.957"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.8"
+            app:layout_constraintVertical_bias="0.0"
             tools:ignore="MissingConstraints" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_imageview"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="90dp"
         android:layout_marginEnd="8dp"
         android:src="@drawable/boy_avatar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +67,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingClass"
         android:tint="@color/black"/>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -87,37 +85,80 @@
         app:layout_constraintTop_toBottomOf="@+id/user_imageview"
         app:layout_constraintVertical_bias="0.038">
 
-        <EditText
-            android:id="@+id/bar_name"
+        <!-- Name Section -->
+        <TextView
+            android:id="@+id/bar_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Nombre Restaurante"
+            android:text="@string/nombre_restaurante2"
+            android:gravity="center"
             android:textIsSelectable="true"
-            android:enabled="false"
-            android:textColor="#FF0000"
-            android:textSize="20sp"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:textColor="@color/Primary"
+            android:textSize="35sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="visible"/>
 
         <EditText
-            android:id="@+id/address"
+            android:id="@+id/bar_name_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:text="C/Ejemplo 47, 1º"
+            android:text="@string/nombre_restaurante3"
             android:textIsSelectable="true"
-            android:enabled="false"
-            android:textColor="#D5FF0057"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:textColor="@color/Primary"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
+
+        <!-- Address Section -->
+        <TextView
+            android:id="@+id/address_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/c_ejemplo_47_1"
+            android:hint="@string/direcci_n_del_restaurante"
+            android:gravity="center"
+            android:textIsSelectable="true"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:textColor="@color/PrimaryVariant"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bar_name_text"
+            android:visibility="visible"/>
+
+        <EditText
+            android:id="@+id/address_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/c_ejemplo_47_12"
+            android:gravity="center"
+            android:hint="@string/direcci_n_del_restaurante2"
+            android:textIsSelectable="true"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:textColor="@color/PrimaryVariant"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bar_name" />
+            app:layout_constraintTop_toBottomOf="@+id/bar_name_edit"
+            android:visibility="gone"/>
 
+        <!-- Email Section -->
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
@@ -127,9 +168,9 @@
             android:layout_marginEnd="8dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/address">
+            app:layout_constraintTop_toBottomOf="@+id/address_text"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/email_imageview"
@@ -139,10 +180,6 @@
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_baseline_email_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.126"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/workplace_textview"
                 app:tint="#0590FF" />
 
             <TextView
@@ -152,29 +189,59 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
-                android:text="Correo Electrónico"
+                android:text="@string/correo_electr_nico"
                 android:textIsSelectable="true"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.031"
-                app:layout_constraintStart_toEndOf="@+id/email_imageview"
-                app:layout_constraintTop_toBottomOf="@+id/workplace_textview" />
-
+                android:textSize="18sp" />
         </LinearLayout>
 
-
         <LinearLayout
-            android:id="@+id/linearLayout2"
+            android:id="@+id/linearLayout4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+            app:layout_constraintTop_toBottomOf="@+id/address_edit"
+            android:visibility="gone">
 
+            <ImageView
+                android:id="@+id/email_imageview_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_baseline_email_24"
+                app:tint="#0590FF" />
+
+            <TextView
+                android:id="@+id/email_textview_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/correo_electr_nico2"
+                android:textIsSelectable="true"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <!-- Phone Section -->
+        <LinearLayout
+            android:id="@+id/linearLayout_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/phone_imageview"
@@ -184,35 +251,177 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/baseline_call_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.126"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/email_imageview"
                 app:tint="#0590FF" />
 
-            <EditText
-                android:id="@+id/phone_textview"
+            <TextView
+                android:id="@+id/phone_text"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="184dp"
-                android:enabled="false"
+                android:hint="@string/n_de_tel_fono"
                 android:inputType="phone"
-                android:text="+34 000 00 00 00 "
-                android:textIsSelectable="true"
+                android:text="@string/_34_000_00_00_00"
                 android:textSize="18sp"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.031"
                 app:layout_constraintStart_toEndOf="@+id/phone_imageview"
                 app:layout_constraintTop_toBottomOf="@+id/email_textview" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout_phone_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/phone_imageview_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/baseline_call_24"
+                app:tint="#0590FF" />
+
+            <EditText
+                android:id="@+id/phone_edit"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="184dp"
+                android:inputType="phone"
+                android:text="@string/_34_000_00_00_002"
+                android:hint="@string/n_de_tel_fono2"
+                android:textIsSelectable="true"
+                android:textSize="18sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.031"
+                app:layout_constraintStart_toEndOf="@+id/phone_imageview_edit"
+                app:layout_constraintTop_toBottomOf="@+id/email_textview_edit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutCurrentPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout_phone_edit"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/current_password_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_key_24"
+                app:tint="#0590FF" />
+
+            <EditText
+                android:id="@+id/current_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/contrase_a_actual"
+                android:inputType="textPassword"
+                android:layout_weight="1"/>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayoutCurrentPassword"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/new_password_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/question_mark"
+                app:tint="#0590FF"
+                android:layout_gravity="center"/>
+
+            <EditText
+                android:id="@+id/new_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="@string/nueva_contrase_a"
+                android:inputType="textPassword"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+        <!-- Nueva Sección: Mostrar Contraseña -->
+        <CheckBox
+            android:id="@+id/show_password_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/mostrar_contrase_a_s"
+            app:layout_constraintTop_toBottomOf="@id/linearLayoutNewPassword"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent=".5"
+            android:visibility="gone"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+    <!-- Confirm Button and Sign Out -->
+
+    <Button
+        android:id="@+id/language_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/button_background"
+        android:drawableLeft="@drawable/spain_flag"
+        android:drawablePadding="8dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:padding="12dp"
+        android:text="Idioma"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+        app:layout_constraintVertical_bias="0.366" />
+
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -222,9 +431,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
-        app:layout_constraintVertical_bias="0.346">
-
-        <!-- Otros campos de perfil -->
+        app:layout_constraintVertical_bias="0.406">
 
         <Button
             android:id="@+id/confirm_button"
@@ -232,32 +439,45 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_background"
             android:elevation="4dp"
+            android:onClick="updateUserProfile"
             android:paddingStart="20dp"
             android:paddingTop="10dp"
             android:paddingEnd="20dp"
             android:paddingBottom="10dp"
-            android:text="Confirmar cambios"
-            android:onClick="updateUserProfile"
+            android:text="@string/confirmar_cambios2"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             tools:layout_editor_absoluteX="113dp"
-            tools:layout_editor_absoluteY="513dp"
-            android:visibility="gone"/>
+            tools:layout_editor_absoluteY="513dp" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="signOut"
-            android:text="Cerrar Sesión"
+            android:text="@string/cerrar_sesi_n"
             android:textAlignment="center"
-            android:textColor="@color/IndianRed"
-            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:textSize="17sp"
+            android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView6"
             app:layout_constraintVertical_bias="0.097" />
 
+
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="110dp"
+        android:layout_height="107dp"
+        android:src="@drawable/logo_gastrosan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

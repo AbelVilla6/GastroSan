@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.InvoiceDetailsActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/left_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/center_section"
+                app:layout_constraintWidth_percent="0.25" />
+
+            <FrameLayout
+                android:id="@+id/center_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toEndOf="@+id/left_section"
+                app:layout_constraintEnd_toStartOf="@+id/right_section"
+                app:layout_constraintWidth_percent="0.50">
+
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/logo_gastrosan"
+                    android:src="@drawable/logo_gastrosan" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/right_section"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toEndOf="@+id/center_section"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.25">
+
+                <ImageView
+                    android:id="@+id/profile_icon"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@string/icono_perfil"
+                    android:onClick="onProfileIconClick"
+                    android:padding="12dp"
+                    android:background="@drawable/ripple_effect"
+                    android:src="@drawable/profile_icon" />
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/imageViewInvoice"
+        android:layout_width="245dp"
+        android:layout_height="300dp"
+        android:scaleType="fitCenter"
+        android:visibility="visible"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/textViewSupplierName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:paddingTop="8dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewInvoice"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewSupplierName"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSupplierName"
+        android:textSize="18sp"
+        android:paddingTop="4dp"
+        android:textStyle="italic"
+        android:gravity="center"
+        tools:ignore="MissingConstraints" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="6dp"
+        app:layout_constraintTop_toBottomOf="@id/textViewDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" >
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:padding="0dp">
+            <!-- Header Row -->
+            <TableRow>
+
+                <TextView android:text="@string/art_culo" style="@style/TableHeader" />
+                <TextView android:text="@string/cantidad" style="@style/TableHeader" />
+                <TextView android:text="@string/n_lote" style="@style/TableHeader" />
+                <TextView android:text="@string/pvp" style="@style/TableHeader" />
+                <TextView android:text="@string/importe" style="@style/TableHeader" />
+            </TableRow>
+        </TableLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/textViewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/scrollView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/textViewTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/total_0_00"
+            android:textSize="18sp"
+            android:visibility="gone"
+            android:textStyle="bold|italic"
+            android:textColor="@color/black"
+            android:gravity="end"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/empty_table_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/actualmente_la_tabla_de_art_culos_est_vac_a"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:id="@+id/linearLayoutButtons"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/textViewContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        tools:ignore="UnknownId">
+
+        <Button
+            android:id="@+id/add_row_button"
+            android:layout_width="120dp"
+            android:layout_height="45dp"
+            android:background="@drawable/button_background"
+            android:text="@string/a_adir_datos"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/buttonDownloadPdf"
+            android:layout_width="120dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:text="@string/descargar_pdf"
+            />
+        <Button
+            android:id="@+id/delete_rows_button"
+            android:layout_width="120dp"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:text="@string/eliminar_filas"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/delete_rows_selected_button"
+            android:layout_width="180dp"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:textColor="@color/white"
+            android:text="@string/confirmar_eliminaci_n"
+            android:visibility="gone" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/buttonDeleteInvoice"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:text="@string/eliminar_factura"
+        android:background="@drawable/button_background3"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutButtons"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

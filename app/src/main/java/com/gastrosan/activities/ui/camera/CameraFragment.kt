@@ -42,8 +42,11 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import Suppliers
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.TypedValue
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -96,9 +99,12 @@ class CameraFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private var email: String? = null
 
-
-
-
+    private val addSupplierActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            // Actualiza la lista de proveedores cuando se vuelve de AddSupplierActivity
+            loadSuppliers()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -117,11 +123,13 @@ class CameraFragment : Fragment() {
 
         // Botón para tomar foto
         binding.btnCamara.setOnClickListener {
+            vibrateButton(requireContext())
             requestCameraPermission()  // Llamada al método actualizado
         }
 
         // Botón para abrir la galería
         binding.btnGaleria.setOnClickListener {
+            vibrateButton(requireContext())
             //requestGalleryPermission()  // Llamada al método actualizado
             openGallery()
         }
@@ -135,6 +143,7 @@ class CameraFragment : Fragment() {
         listViewProviders = root.findViewById(R.id.listViewProviders)
 
         rotateButton.setOnClickListener {
+            vibrateButton(requireContext())
             // Aumenta la rotación actual en 90 grados
             currentRotation += 90
             if (currentRotation == 360f) currentRotation = 0f  // Restablecer después de 360 grados
@@ -146,20 +155,31 @@ class CameraFragment : Fragment() {
         startCamera()
 
         btnAddSupplier.setOnClickListener{
+            vibrateButton(requireContext())
             val intent = Intent(requireContext(), AddSupplierActivity::class.java)
-            startActivity(intent)
+            addSupplierActivityResultLauncher.launch(intent)
         }
         return root
     }
+    fun vibrateButton(context: Context) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Para dispositivos con API 26 o superior
+            vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            // Para dispositivos con API menor a 26
+            vibrator.vibrate(20)
+        }
+    }
     private fun showSettingsDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Permisos Necesarios")
-            .setMessage("Esta aplicación necesita permisos para continuar. Puedes otorgarlos en Ajustes.")
-            .setPositiveButton("Ir a Ajustes") { dialog, _ ->
+            .setTitle(getString(R.string.permisos_necesarios))
+            .setMessage(getString(R.string.esta_aplicaci_n_necesita_permisos_para_continuar_puedes_otorgarlos_en_ajustes))
+            .setPositiveButton(getString(R.string.ir_a_ajustes)) { dialog, _ ->
                 dialog.cancel()
                 openAppSettings()
             }
-            .setNegativeButton("Cancelar") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancelar)) { dialog, _ ->
                 dialog.cancel()
             }
             .create()
@@ -174,9 +194,11 @@ class CameraFragment : Fragment() {
                 adapter.selectedPosition = position
                 listViewProviders.setItemChecked(position, true)
                 adapter.notifyDataSetChanged()
-                Toast.makeText(context, "Proveedor seleccionado: ${adapter.getItem(position)?.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.proveedor_seleccionado, adapter.getItem(position)?.name), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Por favor, marca el checkbox correspondiente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.por_favor_marca_el_checkbox_correspondiente), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -235,7 +257,8 @@ class CameraFragment : Fragment() {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
             } catch (exc: Exception) {
-                Toast.makeText(context, "Failed to start camera: ${exc.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    getString(R.string.failed_to_start_camera, exc.message), Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -313,7 +336,8 @@ class CameraFragment : Fragment() {
                     createImageFile()
                 } catch (ex: IOException) {
                     // Error ocurrido mientras se creaba el archivo
-                    Toast.makeText(requireContext(), "Error al crear el archivo de imagen: ${ex.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),
+                        getString(R.string.error_al_crear_el_archivo_de_imagen, ex.message), Toast.LENGTH_SHORT).show()
                     null
                 }
                 // Continúa solo si el archivo fue creado exitosamente
@@ -361,6 +385,7 @@ class CameraFragment : Fragment() {
             setupProvidersList() // Configurar y mostrar la lista de proveedores
 
             binding.btnSiguiente.setOnClickListener {
+                vibrateButton(requireContext())
                 prepareScreenThree()
             }
 
@@ -378,7 +403,7 @@ class CameraFragment : Fragment() {
                 val layoutParams = binding.imageView.layoutParams as ConstraintLayout.LayoutParams
                 layoutParams.width = convertDpToPixel(200f, requireContext()) // Asumiendo que quieres 100dp de ancho
                 layoutParams.height = convertDpToPixel(200f, requireContext()) // Y 100dp de alto para la miniatura
-                layoutParams.topMargin = convertDpToPixel(80f, requireContext()) // Añadir un margen superior
+                layoutParams.topMargin = convertDpToPixel(20f, requireContext()) // Añadir un margen superior
                 // Actualizar las restricciones para asegurar que la miniatura se muestre correctamente en el layout
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(binding.constraintLayout)
@@ -393,7 +418,7 @@ class CameraFragment : Fragment() {
                 // 90 degrees rotation
                 // Reducir el tamaño del ImageView para que sea una miniatura
                 val layoutParams = binding.imageView.layoutParams as ConstraintLayout.LayoutParams
-                layoutParams.topMargin = convertDpToPixel(20f, requireContext())
+                layoutParams.topMargin = convertDpToPixel(0f, requireContext())
                 layoutParams.width = convertDpToPixel(150f, requireContext())
                 layoutParams.height = convertDpToPixel(250f, requireContext())
                 // Actualizar las restricciones para asegurar que la miniatura se muestre correctamente en el layout
@@ -414,8 +439,8 @@ class CameraFragment : Fragment() {
                 binding.imageView.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     width = newWidth
                     height = newHeight
-                    topMargin = 200
-                    marginStart = 90
+                    topMargin = 0
+                    marginStart = 45
                 }
 
                 // Asegurarnos de que imageView esté en la parte superior del layout
@@ -449,8 +474,8 @@ class CameraFragment : Fragment() {
                 binding.imageView.updateLayoutParams<ConstraintLayout.LayoutParams> {
                     width = newWidth
                     height = newHeight
-                    topMargin = 200  // Ajusta este valor si necesitas mover la imagen más arriba o más abajo
-                    marginStart = 90  // Ajusta según necesites para centrar la imagen horizontalmente
+                    topMargin = 0  // Ajusta este valor si necesitas mover la imagen más arriba o más abajo
+                    marginStart = 0  // Ajusta según necesites para centrar la imagen horizontalmente
                 }
 
                 // Asegurarnos de que imageView esté en la parte superior del layout
@@ -482,10 +507,12 @@ class CameraFragment : Fragment() {
 
         // Configurar la acción del botón "Guardar"
         binding.btnGuardar.setOnClickListener {
+            vibrateButton(requireContext())
             val adapter = listViewProviders.adapter as CustomAdapter
             if (adapter.selectedPosition == -1) {
                 // No hay ningún proveedor seleccionado
-                Toast.makeText(context, "Debes seleccionar un proveedor o añadir uno nuevo", Toast.LENGTH_LONG).show()
+                Toast.makeText(context,
+                    getString(R.string.debes_seleccionar_un_proveedor_o_a_adir_uno_nuevo), Toast.LENGTH_LONG).show()
             } else {
                 // Hay un proveedor seleccionado
                 val selectedSupplier = adapter.getItem(adapter.selectedPosition)
@@ -546,7 +573,8 @@ class CameraFragment : Fragment() {
             }
         }.addOnFailureListener { exception ->
             showLoadingScreen(false, false)  // Error, muestra la cruz roja
-            Toast.makeText(context, "Error al subir imagen: ${exception.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                getString(R.string.error_al_subir_imagen, exception.message), Toast.LENGTH_SHORT).show()
         }
     }
     fun showLoadingScreen(show: Boolean, success: Boolean? = null) {
@@ -558,7 +586,7 @@ class CameraFragment : Fragment() {
                 binding.btnAddSupplier.visibility = View.GONE
                 binding.lottieAnimationView.visibility = View.VISIBLE
 
-                binding.statusMessage.text = "Guardando imagen..."
+                binding.statusMessage.text = getString(R.string.guardando_imagen)
                 binding.statusMessage.visibility = View.VISIBLE
                 binding.lottieAnimationView.setAnimation(R.raw.loading_animation)  // Asume que tienes una animación de carga
 
@@ -573,10 +601,12 @@ class CameraFragment : Fragment() {
 
                 if (success == true) {
                     binding.lottieAnimationView.setAnimation(R.raw.success_animation)
-                    binding.statusMessage.text = "La imagen se ha guardado correctamente."
+                    binding.statusMessage.text =
+                        getString(R.string.la_imagen_se_ha_guardado_correctamente)
                 } else {
                     binding.lottieAnimationView.setAnimation(R.raw.error_animation)
-                    binding.statusMessage.text = "La imagen no ha podido guardarse, por favor intentalo de nuevo."
+                    binding.statusMessage.text =
+                        getString(R.string.la_imagen_no_ha_podido_guardarse_por_favor_intentalo_de_nuevo)
                 }
                 binding.lottieAnimationView.playAnimation()
                 binding.statusMessage.visibility = View.VISIBLE
@@ -648,6 +678,7 @@ class CameraFragment : Fragment() {
             setupProvidersList()
 
             binding.btnSiguiente.setOnClickListener {
+                vibrateButton(requireContext())
                 prepareScreenThree()
             }
         }

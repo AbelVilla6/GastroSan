@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="languages">
+        <item>@string/español</item>
+        <item>@string/english</item>
+        <item>@string/català</item>
+        <item>@string/euskara</item>
+    </string-array>
+
+    <array name="language_flags">
+        <item>@drawable/spain_flag</item>
+        <item>@drawable/uk_flag</item>
+        <item>@drawable/catalonia_flag</item>
+        <item>@drawable/basque_country_flag</item>
+    </array>
+
+</resources>
