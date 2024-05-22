@@ -95,7 +95,6 @@
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/default_logo" />
 
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -232,13 +231,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
 
             <ImageView
                 android:id="@+id/addSupplier"
                 android:layout_width="48dp"
                 android:layout_height="47dp"
-                android:src="@drawable/baseline_add"
+                android:src="@drawable/add_icon"
+                android:background="@drawable/ripple_effect"
                 app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
 
             <ImageView
@@ -247,40 +248,53 @@
                 android:layout_height="47dp"
                 android:layout_marginStart="80dp"
                 android:src="@drawable/baseline_delete"
+                android:background="@drawable/ripple_effect"
                 app:layout_constraintTop_toBottomOf="@+id/listViewProviders" />
 
             <Button
                 android:id="@+id/buttonCancel"
-                android:layout_width="0dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_background"
+                android:textColor="@color/white"
                 android:text="Cancelar"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/buttonDelete"
-                android:layout_width="0dp"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="40dp"
+                android:background="@drawable/button_background"
+                android:textColor="@color/white"
                 android:text="Eliminar"
                 android:visibility="gone" />
-
-
         </LinearLayout>
 
-        <!-- Botón para eliminar al proveedor -->
         <Button
             android:id="@+id/buttonDeleteSupplier"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:background="@drawable/button_background3"
+            android:textColor="@color/white"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
             android:text="Eliminar Proveedor" />
 
         <Button
             android:id="@+id/buttonConfirmChanges"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:background="@drawable/button_background3"
+            android:textColor="@color/white"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
             android:text="Confirmar Cambios"
             android:visibility="gone" />
 
@@ -296,9 +310,5 @@
         android:visibility="gone"
         android:layout_centerInParent="true"
         tools:ignore="MissingConstraints" />
-
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

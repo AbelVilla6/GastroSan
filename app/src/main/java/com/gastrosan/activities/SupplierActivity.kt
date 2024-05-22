@@ -73,6 +73,7 @@ class SupplierActivity : AppCompatActivity() {
     private lateinit var buttonCancel: Button
     private lateinit var buttonDeleteSupplier: Button
     private lateinit var editButton: ImageView
+    private lateinit var phoneImageView: ImageView
     private lateinit var buttonConfirmChanges: Button
     private lateinit var textViewSupplierName: TextView
     private lateinit var editTextSupplierName: EditText
@@ -112,6 +113,7 @@ class SupplierActivity : AppCompatActivity() {
         editTextSupplierName = findViewById(R.id.editTextSupplierName)
         textViewContactName = findViewById(R.id.textViewContactName)
         editTextContactName = findViewById(R.id.editTextViewContactName)
+        phoneImageView = findViewById(R.id.phone_imageview)
         textViewContactPhone = findViewById(R.id.textViewContactPhone)
         editTextContactPhone = findViewById(R.id.editTextViewContactPhone)
         imageViewLogo = findViewById(R.id.imageViewLogo)
@@ -141,12 +143,25 @@ class SupplierActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+        // Configura el OnClickListener para el phone
+        phoneImageView.setOnClickListener {
+            val phoneNumber = textViewContactPhone.text.toString()
+            if (phoneNumber.isNotEmpty()) {
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$phoneNumber")
+                }
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Número de teléfono no disponible", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         deleteSupplier.setOnClickListener {
             val adapter = gridView.adapter as InvoiceAdapter
             adapter.toggleSelectMode()
             addSupplier.visibility = View.GONE
             deleteSupplier.visibility = View.GONE
+            buttonDeleteSupplier.visibility = View.GONE
             buttonDelete.visibility = View.VISIBLE
             buttonCancel.visibility = View.VISIBLE
         }
@@ -175,6 +190,7 @@ class SupplierActivity : AppCompatActivity() {
             deleteSupplier.visibility = View.VISIBLE
             buttonDelete.visibility = View.GONE
             buttonCancel.visibility = View.GONE
+            buttonDeleteSupplier.visibility = View.VISIBLE
         }
         buttonDeleteSupplier.setOnClickListener { showDeleteConfirmationDialog()}
 
@@ -553,6 +569,7 @@ class SupplierActivity : AppCompatActivity() {
         adapter.removeItems(selectedIndices)
         adapter.toggleSelectMode() // Desactivar modo de selección
         buttonDelete.visibility = View.GONE
+        buttonDeleteSupplier.visibility = View.VISIBLE
         buttonCancel.visibility = View.GONE
         addSupplier.visibility = View.VISIBLE
         deleteSupplier.visibility = View.VISIBLE

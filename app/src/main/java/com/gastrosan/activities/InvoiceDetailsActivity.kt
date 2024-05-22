@@ -87,6 +87,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
     private val headerWeights = arrayOf(2.75f, 1.75f, 2.0f, 1.5f, 2.0f) // Pesos para el layout de las columnas
 
     private var supplierLogoUrl: String? = null
+    private var userEmail: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,8 +113,14 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         profileIcon = findViewById(R.id.profile_icon)
         val supplierId = intent.getStringExtra("supplierId") // Asegúrate de tener este dato disponible
 
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        userEmail = currentUser?.email
+
         profileIcon.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
+            // Iniciar ProfileActivity pasando el correo electrónico del usuario
+            val intent = Intent(this, ProfileActivity::class.java).apply {
+                putExtra("email", userEmail)
+            }
             startActivity(intent)
         }
 
@@ -192,6 +199,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                             val cost = itemSnapshot.child("cost").value.toString().toDouble()
 
                             val row = addRowToTable(name, quantity, lotNumber, pvp, formatPrice(cost), false, false)
+                            row.tag = mapOf("firebaseKey" to itemSnapshot.key, "isExtraCost" to false)
                             table.addView(row)
                         }
                     }
@@ -216,6 +224,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                             val cost = extraSnapshot.child("cost").value.toString().toDouble()
 
                             val row = addRowToTable(name, null, null, null, formatPrice(cost), true, false)
+                            row.tag = mapOf("firebaseKey" to extraSnapshot.key, "isExtraCost" to true)
                             table.addView(row)
                         }
                     }
@@ -270,38 +279,34 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             val row = table.getChildAt(i) as TableRow
             val checkBox = row.getChildAt(0) as CheckBox
             val tagObject = row.tag
-
+            println("Tag object at row $i: $tagObject")
             if (tagObject is Map<*, *>) {
                 val isExtraCost = tagObject["isExtraCost"] as? Boolean ?: false
                 val itemId = tagObject["firebaseKey"] as? String
 
                 println("Deleting: ID=$itemId, isExtraCost=$isExtraCost")
 
-                if ((row.getChildAt(0) as? CheckBox)?.isChecked == true && itemId != null) {
+                if (checkBox.isChecked && itemId != null) {
+                    println("Removing row $i from Firebase")
                     removeItemFromFirebase(itemId, isExtraCost)
-                    table.removeViewAt(i)
-                } else {
-                    i++
+                    rowsToDelete.add(row) // Collect rows to delete
                 }
-            } else {
-                i++
             }
+            i++
         }
-        rowsToDelete.forEach { row ->
-            val tagObject = row.tag as? Map<*, *>
-            val isExtraCost = tagObject?.get("isExtraCost") as? Boolean ?: false
-            val itemId = tagObject?.get("firebaseKey") as? String
 
-            if (itemId != null) {
-                removeItemFromFirebase(itemId, isExtraCost)
-                table.removeView(row)
-            }
+        // Remove rows from the table after iterating
+        rowsToDelete.forEach { row ->
+            table.removeView(row)
         }
+
         updateTotal()
         resetTableState()
         updateDeleteButtonState()
         updateEmptyMessageAndTotal()
     }
+
+
 
     private fun resetTableState() {
         // Eliminar el checkbox del encabezado si está presente
@@ -542,7 +547,15 @@ class InvoiceDetailsActivity : AppCompatActivity() {
 
     private fun addRowToTable(name: String, quantity: Int?, lot: String?, pvp: String?, importe: String, isExtraCost: Boolean = false, includeCheckbox: Boolean = false): TableRow {
         val row = TableRow(this).apply {
-            tag = if (isExtraCost) "extraCost" else "item"
+            tag = mapOf(
+                "name" to name,
+                "quantity" to quantity,
+                "lot" to lot,
+                "pvp" to pvp,
+                "importe" to importe,
+                "isExtraCost" to isExtraCost,
+                "firebaseKey" to null // Esto se actualizará después de añadir a Firebase
+            )
             layoutParams = TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)
             background = if (isExtraCost) ContextCompat.getDrawable(this@InvoiceDetailsActivity, R.drawable.table_cell_extra_cost_background)
             else ContextCompat.getDrawable(this@InvoiceDetailsActivity, R.drawable.table_cell_background)
@@ -629,9 +642,11 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         // Se asegura que la tabla tenga solo la fila de encabezado cuando no hay datos.
         if (table.childCount == 1) { // Supone que solo la fila de encabezado está presente.
             emptyMessage.visibility = View.VISIBLE
+            buttonSavePdf.visibility = View.GONE
             findViewById<TextView>(R.id.textViewTotal).visibility = View.GONE
         } else {
             emptyMessage.visibility = View.GONE
+            buttonSavePdf.visibility = View.VISIBLE
             findViewById<TextView>(R.id.textViewTotal).visibility = View.VISIBLE
             updateTotal()
         }
@@ -809,6 +824,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error al eliminar elemento.", Toast.LENGTH_SHORT).show()
             }
     }
+
     private fun createPdfWithLogo() {
         println("Starting PDF creation with logo...")
         val logoUrl = supplierLogoUrl // Asumiendo que tienes una variable para la URL del logo

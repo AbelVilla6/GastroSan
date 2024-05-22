@@ -75,6 +75,7 @@ class AddSupplierActivity : AppCompatActivity() {
 
         binding.btnSaveSupplier.setOnClickListener {
             vibrateButton(this)
+            setResult(RESULT_OK)
             // Verifica si hay una imagen seleccionada, si no, guarda sin imagen
             imageUri?.let {
                 uploadImageToFirebaseStorage(it)

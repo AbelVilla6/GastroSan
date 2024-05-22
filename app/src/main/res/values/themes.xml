@@ -35,4 +35,12 @@
     <style name="TableCellExtraCost" parent="TableCell">
         <item name="android:background">@drawable/table_cell_extra_cost_background</item>
     </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- No sobreescribas los íconos -->
+        <!-- <item name="closeIcon">@null</item> -->
+        <!-- <item name="searchIcon">@null</item> -->
+    </style>
+
+
 </resources>

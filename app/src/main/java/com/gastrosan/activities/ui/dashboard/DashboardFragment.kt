@@ -9,12 +9,11 @@ import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.gastrosan.databinding.FragmentDashboardBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import android.widget.ListView
 import Suppliers
+import android.animation.Animator
 import android.content.Context
 import android.content.Intent
 import android.widget.ArrayAdapter
@@ -25,16 +24,15 @@ import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
 import android.widget.Filterable
 import android.widget.Filter
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.updatePadding
 import java.util.ArrayList
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import java.io.File
-import com.bumptech.glide.load.engine.cache.DiskCache
 import com.gastrosan.activities.AddSupplierActivity
 import com.gastrosan.activities.SupplierActivity
 import java.util.Locale
+import com.airbnb.lottie.LottieAnimationView
 
 class DashboardFragment : Fragment() {
 
@@ -44,7 +42,7 @@ class DashboardFragment : Fragment() {
     private lateinit var deleteSupplier: ImageView
     private lateinit var buttonCancel: Button
     private lateinit var buttonDelete: Button
-    private lateinit var noProvidersMessage: TextView // Asegúrate de declarar esto
+    private lateinit var noProvidersMessage: TextView
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
@@ -82,6 +80,22 @@ class DashboardFragment : Fragment() {
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
+        // Ajustar los parámetros del SearchView para mover la lupa a la derecha
+        searchView.setIconifiedByDefault(false)
+        searchView.maxWidth = Integer.MAX_VALUE
+
+        // Obtener los iconos del SearchView
+        val searchIcon: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_mag_icon)
+        val searchClose: ImageView = searchView.findViewById(androidx.appcompat.R.id.search_close_btn)
+        val searchPlate: ViewGroup = searchView.findViewById(androidx.appcompat.R.id.search_plate)
+
+        // Configurar padding para que el texto esté alineado a la izquierda
+        searchPlate.updatePadding(left = 0, right = 0)
+        searchIcon.updatePadding(left = 0, right = 16) // Ajusta el padding según sea necesario
+
+        // Asegurarse de que el botón de cierre esté visible
+        searchClose.visibility = ImageView.VISIBLE
+
         //receive email from menu
         val currentUser = FirebaseAuth.getInstance().currentUser
         email = currentUser?.email
@@ -89,10 +103,13 @@ class DashboardFragment : Fragment() {
 
         loadSuppliers()
 
+        // En tu DashboardFragment
         addSupplier.setOnClickListener {
             val intent = Intent(activity, AddSupplierActivity::class.java)
             startActivity(intent)
         }
+
+
         deleteSupplier.setOnClickListener {
             if (providerList.isNotEmpty()) {
                 addSupplier.visibility = View.GONE
@@ -316,7 +333,9 @@ class DashboardFragment : Fragment() {
                     } else {
                         val filteredList = ArrayList<Suppliers>()
                         for (row in suppliersList) {
-                            if (row.name?.toLowerCase(Locale.ROOT)?.contains(charString.toLowerCase(Locale.ROOT))!!) {
+                            if (row.name?.lowercase(Locale.ROOT)?.contains(charString.lowercase(
+                                    Locale.ROOT
+                                ))!!) {
                                 filteredList.add(row)
                             }
                         }
@@ -415,14 +434,14 @@ class DashboardFragment : Fragment() {
             return object : Filter() {
                 override fun performFiltering(constraint: CharSequence?): FilterResults {
                     val filteredResults = FilterResults()
-                    val searchText = constraint.toString().toLowerCase()
+                    val searchText = constraint.toString().lowercase(Locale.getDefault())
 
                     // Crear una lista para almacenar los resultados filtrados
                     val resultList = ArrayList<Suppliers>()
 
                     // Iterar sobre la lista original de proveedores y agregar los que coincidan con el texto de búsqueda
                     for (supplier in supplierList) {
-                        val name = supplier.name?.toLowerCase()
+                        val name = supplier.name?.lowercase(Locale.getDefault())
 
                         // Verificar si el nombre del proveedor contiene el texto de búsqueda
                         if (name != null && name.contains(searchText)) {

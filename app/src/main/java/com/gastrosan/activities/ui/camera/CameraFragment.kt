@@ -99,9 +99,12 @@ class CameraFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private var email: String? = null
 
-
-
-
+    private val addSupplierActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            // Actualiza la lista de proveedores cuando se vuelve de AddSupplierActivity
+            loadSuppliers()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -154,7 +157,7 @@ class CameraFragment : Fragment() {
         btnAddSupplier.setOnClickListener{
             vibrateButton(requireContext())
             val intent = Intent(requireContext(), AddSupplierActivity::class.java)
-            startActivity(intent)
+            addSupplierActivityResultLauncher.launch(intent)
         }
         return root
     }
