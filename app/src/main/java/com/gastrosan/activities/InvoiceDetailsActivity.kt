@@ -239,6 +239,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
         }
     }
 
+
     @SuppressLint("StringFormatMatches")
     private fun showDeleteConfirmationDialog() {
         val selectedRowsCount = getSelectedRowsCount()
@@ -362,6 +363,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             finish()
         }
     }
+
 
     override fun onPause() {
         super.onPause()
@@ -835,6 +837,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
             }
     }
 
+
     private fun createPdfWithLogo() {
         println("Starting PDF creation with logo...")
         val logoUrl = supplierLogoUrl // Asumiendo que tienes una variable para la URL del logo
@@ -986,6 +989,7 @@ class InvoiceDetailsActivity : AppCompatActivity() {
                 getString(R.string.error_al_crear_pdf, e.message), Toast.LENGTH_SHORT).show()
         }
     }
+
 
     fun Bitmap.toByteArray(): ByteArray {
         val stream = ByteArrayOutputStream()

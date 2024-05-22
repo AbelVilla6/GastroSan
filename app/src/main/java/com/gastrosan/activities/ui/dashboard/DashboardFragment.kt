@@ -76,7 +76,7 @@ class DashboardFragment : Fragment() {
         deleteSupplier = root.findViewById(R.id.deleteSupplier)
         buttonCancel = root.findViewById(R.id.buttonCancel)
         buttonDelete = root.findViewById(R.id.buttonDelete)
-        noProvidersMessage = root.findViewById(R.id.noProvidersMessage) // Inicializa la vista
+        noProvidersMessage = root.findViewById(R.id.noProvidersMessage)
         database = FirebaseDatabase.getInstance().reference
         auth = FirebaseAuth.getInstance()
 
@@ -96,19 +96,17 @@ class DashboardFragment : Fragment() {
         // Asegurarse de que el botón de cierre esté visible
         searchClose.visibility = ImageView.VISIBLE
 
-        //receive email from menu
+        // Recibir el correo del usuario desde el menú
         val currentUser = FirebaseAuth.getInstance().currentUser
         email = currentUser?.email
         println("Email en Dashboard: $email")
 
         loadSuppliers()
 
-        // En tu DashboardFragment
         addSupplier.setOnClickListener {
             val intent = Intent(activity, AddSupplierActivity::class.java)
             startActivity(intent)
         }
-
 
         deleteSupplier.setOnClickListener {
             if (providerList.isNotEmpty()) {
@@ -122,6 +120,7 @@ class DashboardFragment : Fragment() {
                     getString(R.string.los_datos_a_n_no_est_n_cargados_por_favor_espere), Toast.LENGTH_SHORT).show()
             }
         }
+
         buttonDelete.setOnClickListener {
             val adapter = listViewProviders.adapter as? CustomSelectableAdapter
             if (adapter?.getSelectedSuppliers()?.isEmpty() == true) {
@@ -148,6 +147,7 @@ class DashboardFragment : Fragment() {
                 }
             }
         }
+
         buttonCancel.setOnClickListener {
             addSupplier.visibility = View.VISIBLE
             deleteSupplier.visibility = View.VISIBLE
@@ -155,7 +155,7 @@ class DashboardFragment : Fragment() {
             buttonCancel.visibility = View.GONE
             switchAdapter(false) // Cambia de vuelta al adaptador original
         }
-        //searchview
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -163,7 +163,7 @@ class DashboardFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val adapter = listViewProviders.adapter
-                if (adapter is Filterable) {  // Asegúrate de que el adaptador implemente Filterable
+                if (adapter is Filterable) {
                     (adapter as Filterable).filter.filter(newText)
                 } else {
                     println("Adapter is not an instance of Filterable or is null")
@@ -176,7 +176,7 @@ class DashboardFragment : Fragment() {
         listViewProviders.setOnItemClickListener { parent, view, position, id ->
             val supplier = parent.adapter.getItem(position) as Suppliers
             val intent = Intent(context, SupplierActivity::class.java)
-            intent.putExtra("supplierId", supplier.id) // Suponiendo que Suppliers tiene un campo id
+            intent.putExtra("supplierId", supplier.id)
             startActivity(intent)
         }
 
@@ -186,17 +186,20 @@ class DashboardFragment : Fragment() {
     private fun loadSuppliers() {
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        valueEventListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
-                    return
-                }
-                if (dataSnapshot.exists()) {
-                    providerList.clear() // Limpiar lista anterior
+        if (currentUser != null) {
+            val uid = currentUser.uid
+            println("UID: $uid")
 
-                    for (userSnapshot in dataSnapshot.children) {
-                        val suppliersSnapshot = userSnapshot.child("suppliers")
+            valueEventListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                        return
+                    }
+                    if (dataSnapshot.exists()) {
+                        providerList.clear() // Limpiar lista anterior
+                        val suppliersSnapshot = dataSnapshot.child("suppliers")
 
                         suppliersSnapshot.children.forEach { providerSnapshot ->
                             val id = providerSnapshot.child("id").getValue(String::class.java)
@@ -209,38 +212,41 @@ class DashboardFragment : Fragment() {
                             val supplier = Suppliers(id, name, logoUrl, contactName, contactPhone)
                             providerList.add(supplier)
                         }
-                    }
 
-                    // Mostrar u ocultar el mensaje de "No hay proveedores" según sea necesario
-                    if (providerList.isEmpty()) {
+                        // Mostrar u ocultar el mensaje de "No hay proveedores" según sea necesario
+                        if (providerList.isEmpty()) {
+                            listViewProviders.visibility = View.GONE
+                            noProvidersMessage.visibility = View.VISIBLE
+                            searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
+                        } else {
+                            listViewProviders.visibility = View.VISIBLE
+                            noProvidersMessage.visibility = View.GONE
+                            searchView.visibility = View.VISIBLE // Mostrar SearchView si hay proveedores
+                        }
+
+                        listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
+
+                    } else {
+                        println("No existen proveedores para este usuario.")
                         listViewProviders.visibility = View.GONE
                         noProvidersMessage.visibility = View.VISIBLE
                         searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
-                    } else {
-                        listViewProviders.visibility = View.VISIBLE
-                        noProvidersMessage.visibility = View.GONE
-                        searchView.visibility = View.VISIBLE // Mostrar SearchView si hay proveedores
                     }
+                }
 
-                    listViewProviders.adapter = CustomAdapter(requireContext(), R.layout.list_item_provider, providerList)
-
-                } else {
-                    println("No existe usuario con este correo electrónico.")
-                    listViewProviders.visibility = View.GONE
-                    noProvidersMessage.visibility = View.VISIBLE
-                    searchView.visibility = View.GONE // Ocultar SearchView si no hay proveedores
+                override fun onCancelled(error: DatabaseError) {
+                    if (!isAdded) { // Verifica si el fragmento todavía está adjunto
+                        return
+                    }
+                    println("Error al cargar proveedores: ${error.message}")
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                if (!isAdded) { // Verifica si el fragmento todavía está adjunto
-                    return
-                }
-                println("Error al cargar proveedores: ${error.message}")
-            }
+            usersRef.child(uid).addListenerForSingleValueEvent(valueEventListener)
+        } else {
+            println("Usuario no autenticado")
         }
-        usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(valueEventListener)
     }
+
     override fun onResume() {
         super.onResume()
         // Recargar los proveedores cuando el fragmento vuelve a estar activo
@@ -361,7 +367,8 @@ class DashboardFragment : Fragment() {
     }
 
     private fun deleteSupplierFromFirebase(supplierId: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid ?: return
         val databaseRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users/$userId/suppliers/$supplierId")
         databaseRef.removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -374,6 +381,7 @@ class DashboardFragment : Fragment() {
             }
         }
     }
+
 
     class CustomAdapter(
         context: android.content.Context,

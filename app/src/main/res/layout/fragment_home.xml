@@ -64,7 +64,7 @@
                 android:layout_marginTop="5dp"
                 android:text="@string/proveedores"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
         </LinearLayout>
         <!-- Botón 4: Perfil -->
         <LinearLayout
@@ -90,11 +90,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="@string/perfil3"
-                android:layout_marginTop="5dp"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
         </LinearLayout>
         <!-- Botón 2: Añadir Factura -->
         <LinearLayout

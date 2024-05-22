@@ -317,16 +317,18 @@ class ProfileActivity : AppCompatActivity() {
         // Referencia a la base de datos de usuarios
         val rootRef = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/")
         val usersRef = rootRef.getReference("users")
+        val user = FirebaseAuth.getInstance().currentUser
 
-        usersRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (userSnapshot in dataSnapshot.children) {
-                        val username = userSnapshot.child("username").getValue(String::class.java) ?: ""
-                        val uid = userSnapshot.child("uid").getValue(String::class.java) ?: ""
-                        val phone = userSnapshot.child("phone").getValue(String::class.java) ?: ""
-                        val address = userSnapshot.child("address").getValue(String::class.java) ?: ""
-                        val profilePicUrl = userSnapshot.child("profilePic").getValue(String::class.java) ?: ""
+        if (user != null) {
+            val uid = user.uid
+            println("UID: $uid")
+            usersRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        val username = dataSnapshot.child("username").getValue(String::class.java) ?: ""
+                        val phone = dataSnapshot.child("phone").getValue(String::class.java) ?: ""
+                        val address = dataSnapshot.child("address").getValue(String::class.java) ?: ""
+                        val profilePicUrl = dataSnapshot.child("profilePic").getValue(String::class.java) ?: ""
 
                         // Asignar el valor del uid al userid
                         userid = uid
@@ -357,17 +359,20 @@ class ProfileActivity : AppCompatActivity() {
                         } else {
                             userImageView.setImageResource(R.drawable.boy_avatar)
                         }
+                    } else {
+                        Log.d(TAG, "No se encontró ningún usuario con el UID proporcionado")
                     }
-                } else {
-                    Log.d(TAG, "No se encontró ningún usuario con el correo electrónico proporcionado")
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.w(TAG, "Failed to read value.", error.toException())
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.w(TAG, "Failed to read value.", error.toException())
+                }
+            })
+        } else {
+            Log.d(TAG, "Usuario no autenticado")
+        }
     }
+
 
 
     // Método para manejar el clic en el ImageView del lápiz
