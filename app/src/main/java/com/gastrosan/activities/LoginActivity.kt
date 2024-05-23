@@ -40,9 +40,9 @@ import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var bLogIn: Button
-    private lateinit var inputEmail: EditText
-    private lateinit var inputPassword: EditText
-    private lateinit var checkBox: CheckBox
+    lateinit var inputEmail: EditText
+    lateinit var inputPassword: EditText
+    lateinit var checkBox: CheckBox
     private lateinit var bGoogle: ImageView
     var mLoadingBar: ProgressDialog? = null
 
@@ -78,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
             vibrator.vibrate(100)
         }
     }
-    private fun initializeLoginComponents() {
+    fun initializeLoginComponents() {
         bLogIn = findViewById(R.id.button1)
         inputEmail = findViewById(R.id.editText1)
         inputPassword = findViewById(R.id.editText2)
@@ -86,12 +86,8 @@ class LoginActivity : AppCompatActivity() {
         bGoogle = findViewById(R.id.button2)
         mLoadingBar = ProgressDialog(this)
 
-        // Inicializar el ProgressDialog con la configuración adecuada
-        mLoadingBar = ProgressDialog(this).apply {
-            setTitle(getString(R.string.inicio_de_sesi_n))
-            setMessage(getString(R.string.por_favor_espere_mientras_verificamos_sus_credenciales))
-            setCanceledOnTouchOutside(false)
-        }
+
+        initializeLoadingBar()
         setupSignInMethods()
     }
 
@@ -138,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
-    private fun performLogin() {
+    fun performLogin() {
         val email = inputEmail.text.toString()
         val password = inputPassword.text.toString()
 
@@ -162,12 +158,12 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun googleSignIn() {
+    fun googleSignIn() {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String) {
+    fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         mAuth?.signInWithCredential(credential)?.addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
@@ -181,7 +177,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
-    private fun checkAndSaveUser(user: FirebaseUser) {
+    fun checkAndSaveUser(user: FirebaseUser) {
         val database = FirebaseDatabase.getInstance("https://gastrosan-app-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users")
         val uid = user.uid
 
@@ -219,9 +215,9 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-
     private fun goToMenuActivity() {
-        startActivity(Intent(this, MenuActivity::class.java))
+        val intent = Intent(this, MenuActivity::class.java)
+        startActivity(intent)
         finish()
     }
 
@@ -240,17 +236,17 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkCredentials(): Boolean {
+    fun checkCredentials(): Boolean {
         val result = false
         val email: String = inputEmail.text.toString()
         val password: String = inputPassword.text.toString()
         val hashedPassword = hashPassword(password) // Hashea la contraseña ingresada antes de la comparación
 
         return if (email.isEmpty() || !email.contains("@")) {
-            showError(inputEmail, getString(R.string.email_error_message))
+            showError(inputEmail, getString(R.string.por_favor_introduzca_un_correo_electr_nico_v_lido))
             result
         } else if (password.isEmpty() || password.length < 7) {
-            showError(inputPassword, getString(R.string.passwd_error_message))
+            showError(inputPassword, getString(R.string.la_contrase_a_debe_tener_al_menos_6_caracteres))
             result
         } else {
             mLoadingBar?.setTitle(getString(R.string.inicio_de_sesi_n2))
@@ -303,4 +299,15 @@ class LoginActivity : AppCompatActivity() {
         input.error = s
         input.requestFocus()
     }
+    // Dentro de LoginActivity
+    fun initializeLoadingBar() {
+        mLoadingBar = ProgressDialog(this).apply {
+            setTitle(getString(R.string.inicio_de_sesi_n))
+            setMessage(getString(R.string.por_favor_espere_mientras_verificamos_sus_credenciales))
+            setCanceledOnTouchOutside(false)
+        }
+    }
+
+
+
 }

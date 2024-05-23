@@ -91,7 +91,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="264dp"
         android:background="@drawable/button_background2"
-        android:onClick="mainMenu"
         android:padding="14dp"
         android:text="@string/iniciar_sesiOn"
         android:textAllCaps="false"

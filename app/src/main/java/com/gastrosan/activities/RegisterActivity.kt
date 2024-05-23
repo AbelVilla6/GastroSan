@@ -31,7 +31,7 @@ class RegisterActivity : AppCompatActivity() {
     var inputEmail: EditText? = null
     var bSignIn: Button? = null
     var vibrator: Vibrator? = null
-    private var mAuth: FirebaseAuth? = null
+    var mAuth: FirebaseAuth? = null
     private var mLoadingBar: ProgressDialog? = null
     var vibratorS: Vibrator? = null
     var sharePreferences: SharedPreferences? = null
@@ -75,7 +75,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkCredentials(): Boolean {
+    fun checkCredentials(): Boolean {
         val username = inputUserName!!.text.toString()
         val email = inputEmail!!.text.toString()
         val password = inputPassword!!.text.toString()

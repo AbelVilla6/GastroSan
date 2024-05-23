@@ -2,7 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="LoginActivityTest">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="testShowHidePassword()">
+        <State />
+      </entry>
+      <entry key="testSuccessfulLogin()">
+        <State />
+      </entry>
+      <entry key="testTransitionToRegisterActivity()">
+        <State />
+      </entry>
+      <entry key="testVibrateButton()">
         <State />
       </entry>
     </value>

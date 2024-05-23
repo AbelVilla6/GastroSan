@@ -27,32 +27,33 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
         viewBinding = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
-
-
 }
 
 dependencies {
-
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
@@ -64,10 +65,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
+    implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx:20.3.1")
     implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("com.google.firebase:firebase-database:20.3.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
@@ -75,6 +75,7 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("com.google.android.gms:play-services-auth:19.2.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.18")
+    implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -83,18 +84,17 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    //Splash API
+    // Splash API
     implementation("androidx.core:core-splashscreen:1.0.0")
 
-    //Firebase
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
 
-    //Progress Dialog Library
+    // Progress Dialog Library
     implementation("com.jpardogo.googleprogressbar:library:1.2.0")
 
     // CameraX core library
@@ -105,27 +105,32 @@ dependencies {
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("it.sephiroth.android.library.imagezoom:imagezoom:2.3.0")
 
-
-
-    /*// Si necesitas análisis de imagen (por ejemplo, para códigos QR o procesamiento en tiempo real)
-    implementation("androidx.camera:camera-video:1.3.2")
-    implementation("androidx.camera:camera-image-analysis:1.0.0-alpha24")*/
-
-    //Firebase Storage - obtener imágenes
+    // Firebase Storage - obtener imágenes
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
 
-    //Animaciones
+    // Animaciones
     implementation("com.airbnb.android:lottie:4.2.0")
 
-    //PDF
+    // PDF
     implementation("com.itextpdf:itextg:5.5.10")
 
+    // Testing
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:3.11.2")
+    testImplementation("org.mockito:mockito-android:3.11.2")
+    testImplementation("org.robolectric:robolectric:4.12")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.test.ext:truth:1.5.0")
+    testImplementation("com.google.truth:truth:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("org.mockito:mockito-android:3.11.2")
 
-
-
-
-
-
+    testImplementation("io.mockk:mockk:1.12.0")
+    androidTestImplementation("io.mockk:mockk-android:1.12.0")
 
 }
